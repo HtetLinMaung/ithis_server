@@ -1,0 +1,32 @@
+package com.nirvasoft.web.pos.controller.rest;
+
+import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.nirvasoft.web.pos.model.StockData;
+import com.nirvasoft.web.pos.service.StockService;
+@RestController
+@RequestMapping("/StockSetup")
+public class StockController extends IController {
+	@Autowired
+	StockService stockSetupService;
+
+	
+	
+	@PostMapping(value="/save")
+	public HashMap<String, Object> save(@RequestBody StockData data,HttpServletRequest request){	
+		if(data.getSyskey().equals("0")){
+		return stockSetupService.save(data,getUser(request));
+		}
+		else{
+			return stockSetupService.update(data,getUser(request));
+		}	
+	}	
+}

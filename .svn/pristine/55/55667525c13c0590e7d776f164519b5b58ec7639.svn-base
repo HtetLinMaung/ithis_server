@@ -1,0 +1,154 @@
+import { Component } from "@angular/core";
+import { Router, ActivatedRoute } from "@angular/router";
+import { Subscription } from "rxjs/Subscription";
+
+import { ClientUtil } from "../util/rp-client.util";
+import { RpIntercomService } from "../framework/rp-intercom.service";
+import { RpHttpService } from "../framework/rp-http.service";
+import { RpReferences } from "../framework/rp-references";
+
+@Component({
+    selector: 'frm-saledetailrp-list',
+    template:`
+    <div class="container col-md-12">
+    <form class="form-horizontal" ngNoForm>
+    <legend>Sales Details Report</legend> 
+  
+        <div class="row col-md-12"> 
+
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="col-md-5">From Date</label>                         
+                    <div class="col-md-7">
+                        <datetime [(ngModel)] = "_dates.fromDate" [datepicker]="_datepickerOpts"></datetime>
+                
+                    </div>
+                </div> 
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label class="col-md-5">To Date</label>                         
+                    <div class="col-md-7">
+                        <datetime [(ngModel)] = "_dates.toDate" [datepicker]="_datepickerOpts"></datetime>
+                
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <input type="button" class="btn btn-primary" (click)="_pagerData.currentPage=1;showAll()" value="Show All" />
+                <input type="button" class="btn btn-primary" (click)="_pagerData.currentPage=1;search(true)" value="Refresh" />
+                <input type="button" class="btn btn-primary" (click)="goNew()" value="New" />
+            </div>
+        </div>
+
+        <rp-pager (rpChanged)="changePage($event)" [rpTotalCount]="_pagerData.totalCount" [rpCurrent]="_pagerData.currentPage"></rp-pager>
+
+        <div class="table_container">  
+           <table class="table table-striped table-condensed table-hover tblborder" style="font-size:14px;">
+                <thead>
+                    <tr>
+                        <th style="width:10%">Stock Code</th>    
+                        <th style="width:20%;">Description</th>
+                        <th style="width:10%;">Qty</th>
+                        <th style="width:10%;">Price</th>
+                        <th style="width:10%;">UOM</th>                        
+                        <th style="width:10%;">Discount Amount</th>
+                        <th style="width:10%;">Discount%</th>
+                        <th style="width:10%;">Amount</th>
+                        <th style="width:10%;">Net Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let obj of _array; let i=index">
+                        <td  style="">{{obj.stkCode}}</td>
+                        <td style="">{{obj.stkDesc}}</td>
+                        <td style="" align="right">{{obj.price}}</td>
+                        <td style="" align="right">{{obj.qty}}</td>
+                        <td style="">{{obj.uom}}</td>
+                        <td style="" align="right">{{obj.discAmt}}</td>
+                        <td style="" align="right">{{obj.discPer}}</td>
+                        <td style="" align="right">{{obj.amt}}</td>
+                        <td style="" align="right">{{obj.netAmt}}</td>
+                    </tr> 
+                </tbody>
+            </table>
+        </div>
+        </form>
+    </div>
+  `
+})
+export class FrmSalesDetailsReportComponent {
+    subscription: Subscription;    
+     _util: ClientUtil = new ClientUtil();
+    _array: any = [];
+    _search_param_saledetaillist: any = this.getDefaultSearchObject();
+    _pagerData = {currentPage : 1, totalCount : 0};    
+    _datepickerOpts: any = this._util.getDatePicker();
+    _dates = { "fromDate":  this._util.getCurrentDate(), "toDate":  this._util.getCurrentDate() };
+
+    constructor(private ics: RpIntercomService, private _router: Router, private route: ActivatedRoute, private http: RpHttpService, private ref: RpReferences) {
+        this.subscription = ics.rpbean$.subscribe(x => { })
+        if (!ics.getRole() || ics.getRole() == 0) {
+            this._router.navigate(['/login']);
+        } else {
+            this.search(true);           
+        }    
+    }
+
+    getDefaultSearchObject() {
+        return { "fromDate":"", "toDate":"", "STKCODE":"","STKDESC":"","PRICE":"","QTY":"","UOM":"","DISAMT":"","DISPERCENT":"", "AMT":"","NETAMT":"", "currentPage":1, "totalCount":10, "pageSize":this.ics._profile.n1};
+    }
+
+    showAll() {        
+        this.search(false);
+    }
+
+    search(status: boolean){
+        this._search_param_saledetaillist = this.getDefaultSearchObject();
+        if(status == true) {
+            this._search_param_saledetaillist = this.prepareSearchObject();     
+        }         
+        console.log(this._search_param_saledetaillist);
+        let url: string = this.ics._apiurl + 'saledetail/searchSalesDetialsList';
+        this.http.doPost(url,this._search_param_saledetaillist).subscribe(
+            data => {
+                console.log(data);
+                if(data.SalesDetailsData != null){
+                if (data.SalesDetailsData.length>0) {
+                    this._array = data.SalesDetailsData;
+                    this._pagerData.totalCount = data.totalCount; 
+                } else {
+                    this._array = [];
+                    this._pagerData.totalCount = 0;
+                    this._pagerData.currentPage = 0;
+                    this._dates = { "fromDate":  this._util.getCurrentDate(), "toDate":  this._util.getCurrentDate() };
+                    this.showMessage(this._util.MSG_TYPE.INFO, 'Data Not Found!');
+                }
+            }
+        },
+            () => { }
+        );
+    }
+
+    prepareSearchObject(){
+        this._search_param_saledetaillist.fromDate = this._util.getDatePickerDate(this._dates.fromDate);
+        this._search_param_saledetaillist.toDate = this._util.getDatePickerDate(this._dates.toDate);
+        return this._search_param_saledetaillist;
+    }
+
+    goNew(){
+        this._array = [];
+        this._dates = { "fromDate":  this._util.getCurrentDate(), "toDate":  this._util.getCurrentDate() };
+    }
+
+    changePage(e){
+        this._pagerData.currentPage = e.currentPage;
+        this.search(true);
+    }
+
+     showMessage(t, m) {
+        this.ics.sendBean({ t1: "rp-snack", t2: t.type, t3: m });
+    }
+
+}

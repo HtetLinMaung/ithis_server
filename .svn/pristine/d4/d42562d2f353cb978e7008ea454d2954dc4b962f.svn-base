@@ -1,0 +1,30 @@
+package com.nirvasoft.web.pos.service;
+
+import java.sql.Connection;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nirvasoft.web.pos.dao.ElementaryDao;
+import com.nirvasoft.web.pos.model.UserData;
+import com.nirvasoft.web.pos.util.ConnectionUtil;
+
+@Service
+public class ElementaryService {
+	final static Logger logger = Logger.getLogger(ElementaryService.class);
+	@Autowired
+	ElementaryDao elementaryDao;
+
+	public UserData getLoginUser(UserData loginData) {
+		UserData userData = new UserData();
+
+		try (Connection conn = ConnectionUtil.getUserConnection(loginData.getOrgId());) {
+			userData = elementaryDao.getLoginUser(loginData, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return userData;
+	}
+}

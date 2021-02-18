@@ -1,0 +1,299 @@
+package com.nirvasoft.web.pos.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Repository;
+
+import com.nirvasoft.web.pos.model.PersonData;
+import com.nirvasoft.web.pos.model.RoleData;
+import com.nirvasoft.web.pos.model.UserData;
+import com.nirvasoft.web.pos.util.EncryptionUtil;
+import com.nirvasoft.web.pos.util.ServerUtil;
+
+@Repository
+public class UserDao {
+
+	public int insert(UserData udata, PersonData data, Connection conn) throws SQLException {
+		int effectedRow = 0;
+		String sql1 = "INSERT INTO UVM005 (syskey, CreatedDate, ModifiedDate, UserId, UserName,RecordStatus, SyncStatus, SyncBatch,usersyskey,t1,t2,t3,t4,t5,t6,t7,n1,n2,n3,n4,n5,n6,n7,n8) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,0,0,0,?,0,0,0,0)";
+		String sql = " INSERT INTO UVM012 (syskey, CreatedDate, ModifiedDate, UserId, UserName, RecordStatus, SyncStatus, SyncBatch,usersyskey,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,t12,t13,t14,t15,t16,t17,t18,t19,t20,t21,t22,n1,n2,n3,n4,n5,n6,n7,n8,n9,n10) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ";
+
+		PreparedStatement stat = conn.prepareStatement(sql);
+		String currentDate = ServerUtil.getCurrentDate();
+		int i = 1;
+		stat.setString(i++, data.getSyskey());
+		stat.setString(i++, currentDate);
+		stat.setString(i++, currentDate);
+		stat.setString(i++, data.getUserId());
+		stat.setString(i++, data.getUserName());
+		stat.setLong(i++, 1);
+		stat.setLong(i++, 0);
+		stat.setLong(i++, 0);
+		stat.setLong(i++, data.getUsersyskey());
+		stat.setString(i++, data.getT1());
+		stat.setString(i++, data.getT2());
+		stat.setString(i++, data.getT3());
+		stat.setString(i++, data.getT4());
+		stat.setString(i++, data.getT5());
+		stat.setString(i++, data.getT6());
+		stat.setString(i++, data.getT7());
+		stat.setString(i++, data.getT8());
+		stat.setString(i++, data.getT9());
+		stat.setString(i++, data.getT10());
+		stat.setString(i++, data.getT11());
+		stat.setString(i++, data.getT12());
+		stat.setString(i++, data.getT13());
+		stat.setString(i++, data.getT14());
+		stat.setString(i++, data.getT15());
+		stat.setString(i++, data.getT16());
+		stat.setString(i++, data.getT17());
+		stat.setString(i++, data.getT18());
+		stat.setString(i++, data.getT19());
+		stat.setString(i++, data.getT20());
+		stat.setString(i++, data.getT21());
+		stat.setString(i++, data.getT22());
+		stat.setLong(i++, data.getN1());
+		stat.setLong(i++, data.getN2());
+		stat.setLong(i++, data.getN3());
+		stat.setLong(i++, data.getN4());
+		stat.setLong(i++, data.getN5());
+		stat.setLong(i++, data.getN6());
+		stat.setLong(i++, data.getN7());
+		stat.setLong(i++, data.getN8());
+		stat.setLong(i++, data.getN9());
+		stat.setLong(i++, data.getN10());
+		effectedRow = stat.executeUpdate();
+		if (effectedRow > 0) {
+			PreparedStatement stat1 = conn.prepareStatement(sql1);
+			int j = 1;
+			stat1.setString(j++, udata.getSyskey());
+			stat1.setString(j++, ServerUtil.getCurrentDate());
+			stat1.setString(j++, ServerUtil.getCurrentDate());
+			stat1.setString(j++, udata.getUserId());
+			stat1.setString(j++, udata.getUserName());
+			stat1.setLong(j++, 1);
+			stat1.setLong(j++, 0);
+			stat1.setLong(j++, 0);
+			stat1.setLong(j++, udata.getUsersyskey());
+			stat1.setString(j++, udata.getT1());
+			stat1.setString(j++, EncryptionUtil.encrypt(udata.getT2()));
+			stat1.setString(j++, udata.getT3());
+			stat1.setString(j++, udata.getT4());
+			stat1.setString(j++, udata.getT5());
+			stat1.setString(j++, udata.getT6());
+			stat1.setString(j++, udata.getT7());
+			stat1.setString(j++, udata.getN4());
+			effectedRow = stat1.executeUpdate();
+		}
+		return effectedRow;
+	}
+
+	public Map<String, Object> searchUserList(HashMap<String, Object> data, Connection conn) throws SQLException {
+		Map<String, Object> result = new HashMap<String, Object>();
+		List<UserData> dataList = new ArrayList<>();
+		int totalCount = 0;
+
+		/*String sql = "SELECT UVM005.SYSKEY,UVM005.T1 USERID,UVM005.T2 USERPASSWORD,UVM005.T7 PASSCODE,UVM012.T2 USERNAME FROM UVM005 INNER JOIN UVM012 ON UVM012.SYSKEY=UVM005.N4 ";
+		String whereClause = " WHERE UVM005.RECORDSTATUS<>4 AND UVM005.SYSKEY<>0 ";*/
+		String sql = "SELECT STK015.SYSKEY,STK015.T1 USERID,STK015.T2 USERNAME FROM STK015 ";
+		String whereClause = " WHERE STK015.RECORDSTATUS<>4 AND STK015.SYSKEY<>0 ";
+
+		whereClause += ServerUtil.getFilter((String) data.get("userId"), (String) data.get("idOptr"), "STK015.T1");
+		whereClause += ServerUtil.getFilter((String) data.get("userName"), (String) data.get("nameOptr"), "STK015.T2");
+
+		sql += whereClause;
+		int currentPage = (int) data.get("currentPage");
+		int pageSize = (int) data.get("totalCount");
+		int start = (currentPage - 1) * pageSize;
+
+		sql += " ORDER BY STK015.T1 OFFSET  " + start + " ROWS FETCH NEXT " + pageSize + " ROWS ONLY ";
+ 
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+
+		while (rs.next()) {
+			UserData userData = new UserData();
+			userData.setSyskey(rs.getString("SYSKEY"));
+			userData.setUserId(rs.getString("USERID"));
+			userData.setUserName(rs.getString("USERNAME"));
+			//userData.setT1(rs.getString("USERPASSWORD"));
+			dataList.add(userData);
+		}
+
+		/*stmt = conn.prepareStatement(
+				"SELECT COUNT(UVM005.SYSKEY) AS totalCount FROM UVM005 INNER JOIN UVM012 ON UVM012.SYSKEY=UVM005.N4 "
+						+ whereClause);*/
+		stmt = conn.prepareStatement(
+				"SELECT COUNT(STK015.SYSKEY) AS totalCount FROM STK015 "
+						+ whereClause);
+		rs = stmt.executeQuery();
+		if (rs.next())
+			totalCount = rs.getInt("totalCount");
+
+		result.put("userdatalist", dataList);
+		result.put("totalCount", totalCount);
+
+		return result;
+	}
+
+	public int insertUserRole(String userSK, String RoleSK, Connection conn) throws SQLException {
+		int effectedRow = 0;
+		String sql = "INSERT INTO JUN002 (RECORDSTATUS,SYNCSTATUS,SYNCBATCH,N1,N2,N3,N4,N5,USERSYSKEY) VALUES (1,0,0,?,?,1,0,0,0)";
+		PreparedStatement stat = conn.prepareStatement(sql);
+		stat.setString(1, userSK);
+		stat.setString(2, RoleSK);
+		effectedRow = stat.executeUpdate();
+		return effectedRow;
+	}
+
+	public UserData read(String id, Connection conn) throws SQLException {
+		UserData result = new UserData();
+		List<RoleData> roleList = new ArrayList<>();
+		String sql = "SELECT UVM005.SYSKEY,UVM005.T1 USERID,UVM005.T2 USERPASSWORD,UVM005.N4 U12SYSKEY,UVM012.T2 USERNAME,UVM005.N1,UVM005.N2,UVM005.T3 EMAIL FROM UVM005 INNER JOIN UVM012 ON UVM012.SYSKEY=UVM005.N4 WHERE UVM005.RECORDSTATUS<>4 AND UVM005.SYSKEY= "
+				+ id;
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			result.setSyskey(rs.getString("SYSKEY"));
+			result.setT1(rs.getString("USERID"));
+			result.getPerson().setSyskey(rs.getString("U12SYSKEY"));
+			result.getPerson().setT2(rs.getString("USERNAME"));
+			result.setN4(rs.getString("U12SYSKEY"));
+			result.setT2(EncryptionUtil.decrypt((rs.getString("USERPASSWORD"))));
+			result.setT3(rs.getString("EMAIL"));
+		}
+
+		String sql1 = "SELECT JUN002.N2 AS SYSKEY,UVM009.T1,UVM009.T2,UVM009.N1 FROM JUN002 INNER JOIN UVM009 ON UVM009.SYSKEY=JUN002.N2 WHERE JUN002.N1=? AND JUN002.RECORDSTATUS<>4 ";
+		PreparedStatement stmt1 = conn.prepareStatement(sql1);
+		stmt1.setString(1, id);
+		ResultSet rs1 = stmt1.executeQuery();
+		while (rs1.next()) {
+			RoleData data = new RoleData();
+			data.setSyskey(rs1.getString("SYSKEY"));
+			data.setT1(rs1.getString("T1"));
+			data.setT2(rs1.getString("T2"));
+			data.setN2(rs1.getInt("N1"));
+			roleList.add(data);
+		}
+		result.getRoleData().addAll(roleList);
+		return result;
+	}
+
+	public int delete(String id, String u12id, Connection conn) throws SQLException {
+		int effectedRow = 0;
+		String sql = "UPDATE UVM005 SET RECORDSTATUS=4 WHERE SYSKEY= " + id + " AND N4= " + u12id;
+		String sql1 = "UPDATE UVM012 SET RECORDSTATUS=4 WHERE SYSKEY= " + u12id;
+		PreparedStatement stmt1 = conn.prepareStatement(sql1);
+		effectedRow = stmt1.executeUpdate();
+		if (effectedRow > 0) {
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			effectedRow = stmt.executeUpdate();
+		}
+		return effectedRow;
+	}
+
+	public boolean isUserIdExist(String code,String key, Connection conn) throws SQLException {
+		int effectedRowCount = 0;
+		String sql = "SELECT COUNT(*) AS TOTALCOUNT FROM UVM005 WHERE T1 LIKE ?  AND RECORDSTATUS <> 4 AND SYSKEY <> ? ";
+		PreparedStatement stat = conn.prepareStatement(sql);
+		stat.setString(1, code);
+		stat.setString(2, key);
+		ResultSet rs = stat.executeQuery();
+		if (rs.next()) {
+			effectedRowCount = rs.getInt("TOTALCOUNT");
+		}
+		if (effectedRowCount > 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public int update(UserData udata, PersonData data, Connection conn) throws SQLException {
+		int effectedRow = 0;
+		String sql = " UPDATE UVM012 SET  ModifiedDate=?, UserId=?, UserName=?, RecordStatus=?, SyncStatus=?, SyncBatch=?,usersyskey=?,t1=?,t2=?,t3=?,t4=?,t5=?,t6=?,t7=?,t8=?,t9=?,t10=?,t11=?,t12=?,t13=?,t14=?,t15=?,t16=?,t17=?,t18=?,t19=?,t20=?,t21=?,t22=?,n1=?,n2=?,n3=?,n4=?,n5=?,n6=?,n7=?,n8=?,n9=?,n10=? WHERE syskey=? ";
+		String sql1 = " UPDATE UVM005 SET  ModifiedDate=?, UserId=?, UserName=?,RecordStatus=?, SyncStatus=?, SyncBatch=?,usersyskey=?,t1=?,t2=?,t3=?,t4=?,t5=?,t6=?,t7=?,n4=? WHERE syskey=? "; 
+ 
+		PreparedStatement stat = conn.prepareStatement(sql);
+		String currentDate = ServerUtil.getCurrentDate();
+		int i = 1;
+		stat.setString(i++, currentDate);
+		stat.setString(i++, data.getUserId());
+		stat.setString(i++, data.getUserName());
+		stat.setLong(i++, 1);
+		stat.setLong(i++, 0);
+		stat.setLong(i++, 0);
+		stat.setLong(i++, data.getUsersyskey());
+		stat.setString(i++, data.getT1());
+		stat.setString(i++, data.getT2());
+		stat.setString(i++, data.getT3());
+		stat.setString(i++, data.getT4());
+		stat.setString(i++, data.getT5());
+		stat.setString(i++, data.getT6());
+		stat.setString(i++, data.getT7());
+		stat.setString(i++, data.getT8());
+		stat.setString(i++, data.getT9());
+		stat.setString(i++, data.getT10());
+		stat.setString(i++, data.getT11());
+		stat.setString(i++, data.getT12());
+		stat.setString(i++, data.getT13());
+		stat.setString(i++, data.getT14());
+		stat.setString(i++, data.getT15());
+		stat.setString(i++, data.getT16());
+		stat.setString(i++, data.getT17());
+		stat.setString(i++, data.getT18());
+		stat.setString(i++, data.getT19());
+		stat.setString(i++, data.getT20());
+		stat.setString(i++, data.getT21());
+		stat.setString(i++, data.getT22());
+		stat.setLong(i++, data.getN1());
+		stat.setLong(i++, data.getN2());
+		stat.setLong(i++, data.getN3());
+		stat.setLong(i++, data.getN4());
+		stat.setLong(i++, data.getN5());
+		stat.setLong(i++, data.getN6());
+		stat.setLong(i++, data.getN7());
+		stat.setLong(i++, data.getN8());
+		stat.setLong(i++, data.getN9());
+		stat.setLong(i++, data.getN10());
+		stat.setString(i++, data.getSyskey());
+		effectedRow = stat.executeUpdate();
+		if (effectedRow > 0) {
+			PreparedStatement stat1 = conn.prepareStatement(sql1);
+			int j = 1;
+			stat1.setString(j++, ServerUtil.getCurrentDate());
+			stat1.setString(j++, udata.getUserId());
+			stat1.setString(j++, udata.getUserName());
+			stat1.setLong(j++, 1);
+			stat1.setLong(j++, 0);
+			stat1.setLong(j++, 0);
+			stat1.setLong(j++, udata.getUsersyskey());
+			stat1.setString(j++, udata.getT1());
+			stat1.setString(j++, EncryptionUtil.encrypt(udata.getT2()));
+			stat1.setString(j++, udata.getT3());
+			stat1.setString(j++, udata.getT4());
+			stat1.setString(j++, udata.getT5());
+			stat1.setString(j++, udata.getT6());
+			stat1.setString(j++, udata.getT7());
+			stat1.setString(j++, udata.getN4());
+			stat1.setString(j++, udata.getSyskey());
+			effectedRow = stat1.executeUpdate();
+		}
+		return effectedRow;
+	}
+
+	public int deleteUserRole(String userSK, Connection conn) throws SQLException {
+		int effectedRow = 0;
+		String sql = "DELETE FROM JUN002 WHERE N1=?";
+		PreparedStatement stat = conn.prepareStatement(sql);
+		stat.setString(1, userSK);
+		effectedRow = stat.executeUpdate();
+		return effectedRow;
+	}
+}

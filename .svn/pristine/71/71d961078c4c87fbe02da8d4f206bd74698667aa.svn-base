@@ -1,0 +1,124 @@
+System.register(['@angular/core', '@angular/forms', '@angular/common', '../util/pager.module', 'ng2-datetime', '../framework/rp-http.service', '../util/rp-client.util', '@angular/router', './frmMenu.component', './frmMenuList.component', './frmMenuOrder.component', './frmRole.component', './frmRoleList.component', './frmUser.component', './frmUserList.component', './frmStockGroup.component', './frmStockGroupList.component', './frmDailySales.component'], function(exports_1, context_1) {
+    "use strict";
+    var __moduleName = context_1 && context_1.id;
+    var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = (this && this.__metadata) || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var core_1, forms_1, common_1, pager_module_1, ng2_datetime_1, rp_http_service_1, rp_client_util_1, router_1, frmMenu_component_1, frmMenuList_component_1, frmMenuOrder_component_1, frmRole_component_1, frmRoleList_component_1, frmUser_component_1, frmUserList_component_1, frmStockGroup_component_1, frmStockGroupList_component_1, frmDailySales_component_1;
+    var SystemModule;
+    return {
+        setters:[
+            function (core_1_1) {
+                core_1 = core_1_1;
+            },
+            function (forms_1_1) {
+                forms_1 = forms_1_1;
+            },
+            function (common_1_1) {
+                common_1 = common_1_1;
+            },
+            function (pager_module_1_1) {
+                pager_module_1 = pager_module_1_1;
+            },
+            function (ng2_datetime_1_1) {
+                ng2_datetime_1 = ng2_datetime_1_1;
+            },
+            function (rp_http_service_1_1) {
+                rp_http_service_1 = rp_http_service_1_1;
+            },
+            function (rp_client_util_1_1) {
+                rp_client_util_1 = rp_client_util_1_1;
+            },
+            function (router_1_1) {
+                router_1 = router_1_1;
+            },
+            function (frmMenu_component_1_1) {
+                frmMenu_component_1 = frmMenu_component_1_1;
+            },
+            function (frmMenuList_component_1_1) {
+                frmMenuList_component_1 = frmMenuList_component_1_1;
+            },
+            function (frmMenuOrder_component_1_1) {
+                frmMenuOrder_component_1 = frmMenuOrder_component_1_1;
+            },
+            function (frmRole_component_1_1) {
+                frmRole_component_1 = frmRole_component_1_1;
+            },
+            function (frmRoleList_component_1_1) {
+                frmRoleList_component_1 = frmRoleList_component_1_1;
+            },
+            function (frmUser_component_1_1) {
+                frmUser_component_1 = frmUser_component_1_1;
+            },
+            function (frmUserList_component_1_1) {
+                frmUserList_component_1 = frmUserList_component_1_1;
+            },
+            function (frmStockGroup_component_1_1) {
+                frmStockGroup_component_1 = frmStockGroup_component_1_1;
+            },
+            function (frmStockGroupList_component_1_1) {
+                frmStockGroupList_component_1 = frmStockGroupList_component_1_1;
+            },
+            function (frmDailySales_component_1_1) {
+                frmDailySales_component_1 = frmDailySales_component_1_1;
+            }],
+        execute: function() {
+            SystemModule = (function () {
+                function SystemModule() {
+                }
+                SystemModule = __decorate([
+                    core_1.NgModule({
+                        imports: [
+                            common_1.CommonModule,
+                            forms_1.FormsModule,
+                            pager_module_1.PagerModule,
+                            ng2_datetime_1.NKDatetimeModule,
+                            router_1.RouterModule.forChild([
+                                { path: 'menu', component: frmMenu_component_1.FrmMenuComponent },
+                                { path: 'menu/:id', component: frmMenu_component_1.FrmMenuComponent },
+                                { path: 'menuList', component: frmMenuList_component_1.FrmMenuListComponent },
+                                { path: 'menuorder', component: frmMenuOrder_component_1.FrmMenuOrderComponent },
+                                { path: 'role', component: frmRole_component_1.FrmRoleComponent },
+                                { path: 'role/:syskey', component: frmRole_component_1.FrmRoleComponent },
+                                { path: 'rolelist', component: frmRoleList_component_1.FrmRoleListComponent },
+                                { path: 'user', component: frmUser_component_1.FrmUserComponent },
+                                { path: 'userList', component: frmUserList_component_1.FrmUserListComponent },
+                                { path: 'user/:syskey', component: frmUser_component_1.FrmUserComponent },
+                                { path: 'stockgroup', component: frmStockGroup_component_1.FrmStockGroupComponent },
+                                { path: 'stockgrouplist', component: frmStockGroupList_component_1.FrmStockGroupListComponent },
+                                { path: 'dailysalesreport', component: frmDailySales_component_1.FrmDailySalesReport }
+                            ])
+                        ],
+                        declarations: [
+                            frmMenu_component_1.FrmMenuComponent,
+                            frmMenuList_component_1.FrmMenuListComponent,
+                            frmRole_component_1.FrmRoleComponent,
+                            frmRoleList_component_1.FrmRoleListComponent,
+                            frmUser_component_1.FrmUserComponent,
+                            frmUserList_component_1.FrmUserListComponent,
+                            frmMenuOrder_component_1.FrmMenuOrderComponent,
+                            frmStockGroup_component_1.FrmStockGroupComponent,
+                            frmStockGroupList_component_1.FrmStockGroupListComponent,
+                            frmDailySales_component_1.FrmDailySalesReport
+                        ],
+                        providers: [
+                            rp_http_service_1.RpHttpService,
+                            rp_client_util_1.ClientUtil
+                        ],
+                        schemas: [core_1.CUSTOM_ELEMENTS_SCHEMA]
+                    }), 
+                    __metadata('design:paramtypes', [])
+                ], SystemModule);
+                return SystemModule;
+            }());
+            exports_1("SystemModule", SystemModule);
+        }
+    }
+});
+//# sourceMappingURL=system.module.js.map

@@ -1,0 +1,187 @@
+
+import { Component, OnInit} from "@angular/core";
+import { RpIntercomService } from "../framework/rp-intercom.service";
+import { RpHttpService } from "../framework/rp-http.service";
+
+@Component({
+    selector : 'frm-dailysalesreport',
+    template : ` 
+    <div class="container col-md-12" *ngIf = '!_divexport'>
+        <form class="form-horizontal" ngNoForm>
+            <legend style="font-size:19px;margin: 8px 1px"><span>Daily Sales</span></legend>
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="button" class="btn btn-primary" (click)="_pagerData.currentPage=1;showAll()" value="Show All" />
+                        <input type="button" class="btn btn-primary" (click)="_pagerData.currentPage=1;refersh()" value="Refresh" />
+                        <input type="button" class="btn btn-primary" (click)="goPrint()" value="Print" />
+                    </div> 
+                </div>
+                <hr>
+                <div class="row col-md-12">  
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label col-md-3 col-sm-3" style="text-align: left;">Sales Person</label>
+                            <div class="col-md-9 ">
+                                <div class="input-group">
+                                    <span class="input-group-btn">
+                                        <select (change)="changeSPersonOption($event.target.value)" class="form-control input-sm">
+                                            <option [value]= "0">All</option>
+                                            <option [value]= "1">contain</option>
+                                            <option [value]= "2">equal</option>
+                                            <option [value]= "3">begin with</option>
+                                        </select>
+                                    </span> 
+                                    <span class="input-group-btn"> 
+                                        <input class="select_control form-control input-sm" type="text">
+                                    </span>
+                                </div>
+                            </div>
+                        </div>                
+                    </div>
+
+                <div class="col-md-4">
+                    <div class="form-group ">
+                        <label class=" control-label col-md-3" style="text-align: left;">Date.</label>
+                        <div class="col-md-9 ">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                   <div class='date'>                                                                         
+                                        <input type="date" [(ngModel)]="fromdate" (dateTimeChange)="changeDateValue($event)" class="form-control input-sm">                                                                        
+                                    </div>
+                                </span> 
+                                <span>
+                                    <div class="control-label" style="text-align:center;width: 2%;padding: 0px">-</div>
+                                </span>
+                                <span class="input-group-btn"> 
+                                    <div class='date'>                                                                         
+                                        <input type="date" [(ngModel)]="todate" class="form-control input-sm" >                                                                       
+                                    </div>
+                                </span>
+                                <span class="input-group-btn"> 
+                                    <label class="control-label" style="margin-bottom:4px">
+                                        <input type="checkbox" (change)="checkDateValue()">
+                                        &nbsp;All
+                                    </label>
+                                </span>                                
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+
+            </div>                
+
+            <div class="col-md-12" style="padding: 0px">
+                <rp-pager [rpTotalCount]="_pagerData.totalCount" [rpCurrent]="_pagerData.currentPage"></rp-pager>
+            </div>
+                
+            <div class="col-md-12" style="padding: 2px 0px 2px">
+                <div class="table_container">
+                    <table class="table table-striped table-condensed table-hover tblborder" style="width:100%;height:98%">
+                        <caption></caption>
+                        <thead>
+                            <tr>
+                                <th style="width:12%">Date</th>
+                                <th style="width:24%">Amount</th>
+                                <th style="width:20%">Discount</th>
+                                <th style="width:20%">Tax</th>
+                                <th style="width:24%">Net Amount</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>                            
+                            <tr *ngFor="let item of _array">
+                                <td>{{item.t1}}</td>
+                                <td style="text-align:right">{{item.t2 | number:'1.2-2'}}</td>
+                                <td style="text-align:right">{{item.t3 | number:'1.2-2'}}</td>
+                                <td style="text-align:right">{{item.t4 | number:'1.2-2'}}</td>
+                                <td style="text-align:right">{{item.t5 | number:'1.2-2'}}</td>
+                            </tr>
+                            <tr class="border-row">
+                                <td>Total Amount</td>
+                                <td style="text-align:right">{{_totalAmount | number:'1.2-2'}}</td>
+                                <td style="text-align:right">{{_totalDisAmount | number:'1.2-2'}}</td>
+                                <td style="text-align:right">{{_totalTaxAmount | number:'1.2-2'}}</td>
+                                <td style="text-align:right">{{_totalNetAmount | number:'1.2-2'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>  
+                </div>      
+            </div>           
+        </form>
+  </div>
+  <div style="width:100%;height:100%" *ngIf="_divexport">
+    <app-report-viewer [url]="_printUrl" [params]="_rptparams" (close)=goClose($event)></app-report-viewer>
+  </div>    
+`,
+styles: [`
+label {
+    font-weight: 400!important;
+    font-size: 13px;
+}
+`],
+})
+export class FrmDailySalesReport implements OnInit {
+   
+    _totalAmount : any=0;
+    _totalNetAmount : any=0;
+    _totalTaxAmount : any=0;
+    _totalDisAmount : any=0;   
+
+    _pagerData = {currentPage : 1, totalCount : 0};
+
+    _search_param: any = this.getDefaultSearchObject();   
+    _array: any = [];
+
+    constructor(private ics: RpIntercomService,private http: RpHttpService){}
+
+    ngOnInit(){
+        this.showAll();
+    }
+
+    showAll() {
+        this._search_param = this.getDefaultSearchObject();
+        this.search();
+    }
+
+    getDefaultSearchObject() {
+       
+        return {"fromdate": "","todate": "", "salesptype": "0","salesperson": "",
+            "currentPage": 1, "totalCount": this.ics._profile.n1
+        };       
+
+      }
+
+    search() { 
+        this._search_param.currentPage = this._pagerData.currentPage;
+        this._search_param.totalCount = this.ics._profile.n1;   
+
+        let data: any = {"fromdate": this._search_param.fromdate, "todate": this._search_param.todate,"salesptype":this._search_param.salesptype , 
+        "salesperson": this._search_param.salesperson,"currentPage": this._pagerData.currentPage,  "pageSize": 10, "totalCount":this._search_param.totalCount };      
+        
+        let url: string = this.ics._apiurl + 'dailysale/dailysaleList';
+        this.http.doPost(url,data).subscribe(
+            data => {
+                console.log(data);
+                if (data.dailysaleData.length>0) {
+                    this._array = data.dailysaleData;
+                    this._pagerData.totalCount = data.totalCount; 
+                    this._totalAmount = data.totalAmount;
+                    this._totalNetAmount = data.totalNetAmt;
+                    this._totalTaxAmount = data.totalTaxAmt;
+                    this._totalDisAmount = data.totalDiscountAmt;
+                } else {
+                    this._array = [];
+                    this._pagerData.totalCount = 0;
+                    this._pagerData.currentPage = 0;
+                    this._totalAmount = 0;
+                    this._totalNetAmount = 0;
+                    this._totalTaxAmount = 0;
+                    this._totalDisAmount = 0;
+                    //this.showMessage(this._util.MSG_TYPE.INFO, 'User Not Found!');
+                }
+            },
+            () => { }
+        );
+    } 
+ 
+}

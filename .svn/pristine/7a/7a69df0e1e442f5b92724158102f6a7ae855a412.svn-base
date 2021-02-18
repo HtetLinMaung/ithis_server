@@ -1,0 +1,25 @@
+import { RpReferences } from '../framework/rp-references';
+
+declare var AesUtil: any;
+export class ClientUtil {
+  constructor() {
+  }
+
+  MSG_TYPE = { INFO: { type: "Information" }, WARN: { type: "Warning" } }
+
+
+  validateEmail(d) {
+    var pattern = /[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}/igm;
+    return pattern.test(d);
+  };
+
+  
+  deepCloneArray(oldArray: Object[]) {             //For Clone Array
+    let renewArray: any = [];
+    oldArray.forEach((item) => {
+      renewArray.push(Object.assign({}, item));
+    });
+    return renewArray;
+  }
+
+}

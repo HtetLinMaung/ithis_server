@@ -1,0 +1,80 @@
+import { FrmSalesOrderComponent } from './frmSalesOrder.component';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
+import { PagerModule } from '../util/pager.module';
+import { NKDatetimeModule } from 'ng2-datetime';
+import { RpHttpService } from '../framework/rp-http.service';
+import { ClientUtil } from '../util/rp-client.util';
+import { RouterModule } from '@angular/router';
+import { FrmMenuComponent } from './frmMenu.component';
+import { FrmMenuListComponent } from './frmMenuList.component';
+import { FrmMenuOrderComponent } from './frmMenuOrder.component';
+import { FrmRoleComponent } from './frmRole.component';
+import { FrmRoleListComponent } from './frmRoleList.component';
+import { FrmUserComponent } from './frmUser.component';
+import { FrmUserListComponent } from './frmUserList.component';
+import { FrmStockGroupComponent } from './frmStockGroup.component';
+import { FrmStockGroupListComponent } from './frmStockGroupList.component';
+import { FrmDailySalesReport } from './frmDailySales.component';
+
+import { FrmStockComponent } from './frmStock.component';
+
+import{ FrmSaleOrderLisComponent} from './frmSalesOrderList.component';
+import { FrmSalesDetailsReportComponent } from './frmSalesDetailsReport.component';
+
+
+
+@NgModule({
+  imports: [
+    CommonModule,
+    FormsModule,
+    PagerModule,
+    NKDatetimeModule,
+    RouterModule.forChild([
+      { path: 'menu', component:FrmMenuComponent },
+      { path: 'menu/:id', component:FrmMenuComponent },
+      { path: 'menuList', component:FrmMenuListComponent },
+      { path: 'menuorder', component:FrmMenuOrderComponent },
+      { path: 'role',component : FrmRoleComponent },
+      { path: 'role/:syskey',component : FrmRoleComponent },
+      { path: 'rolelist',component : FrmRoleListComponent },
+      { path: 'user', component:FrmUserComponent },
+      { path: 'userList', component:FrmUserListComponent },
+      { path: 'user/:syskey', component:FrmUserComponent },
+      { path:'stockgroup',component:FrmStockGroupComponent},
+      { path:'stockgrouplist',component:FrmStockGroupListComponent},
+
+      {path:'dailysalesreport',component:FrmDailySalesReport},
+      { path: 'stock', component:FrmStockComponent },
+
+      {path:'dailysalesreport',component:FrmDailySalesReport},
+      {path:'saleorderlist',component:FrmSaleOrderLisComponent},
+      {path: 'saleorder', component:FrmSalesOrderComponent},
+      { path: 'saledetailreport', component:FrmSalesDetailsReportComponent }
+
+  ])
+  ],
+  declarations: [
+    FrmMenuComponent,
+    FrmMenuListComponent,
+    FrmRoleComponent,
+    FrmRoleListComponent,
+    FrmUserComponent,
+    FrmUserListComponent,
+    FrmMenuOrderComponent,
+    FrmStockGroupComponent,
+    FrmStockGroupListComponent,
+    FrmDailySalesReport,
+    FrmStockComponent,
+    FrmSaleOrderLisComponent,
+    FrmSalesOrderComponent,
+    FrmSalesDetailsReportComponent
+  ],
+  providers: [
+    RpHttpService,
+    ClientUtil
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+})
+export class SystemModule { }

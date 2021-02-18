@@ -1,0 +1,32 @@
+package com.nirvasoft.web.pos.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import org.springframework.stereotype.Repository;
+
+import com.nirvasoft.web.pos.model.UserData;
+import com.nirvasoft.web.pos.util.EncryptionUtil;
+
+@Repository
+public class ElementaryDao {
+	public UserData getLoginUser(UserData loginData, Connection conn) throws SQLException {
+		UserData userData = new UserData();
+		String sql = "SELECT UVM005.SYSKEY,UVM012.SYSKEY AS U12SK,UVM012.T1,UVM012.T2 FROM UVM012 INNER JOIN UVM005 ON UVM012.SYSKEY=UVM005.N4 WHERE UVM005.RECORDSTATUS <> 4 AND  UVM005.T1 LIKE ? AND UVM005.T2 LIKE ?";
+		PreparedStatement stat = conn.prepareStatement(sql);
+		stat.setString(1, loginData.getUserId());
+		stat.setString(2, EncryptionUtil.encrypt(loginData.getPassword()));
+
+		ResultSet rs = stat.executeQuery();
+		if (rs.next()) {
+			userData.setSyskey(rs.getString("SYSKEY"));
+			userData.setU12Syskey(rs.getString("U12SK"));
+			userData.setUserId(rs.getString("T1"));
+			userData.setUserName(rs.getString("T2"));
+		}
+
+		return userData;
+	}
+}

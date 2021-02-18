@@ -1,0 +1,124 @@
+a.ex1:hover, a.ex1:active {
+	font-size: 100%;
+}
+
+.dropdown-menu {
+	background-color: #3b5998;
+}
+
+.dropdown-menu>li>a {
+	color: white;
+	text-decoration: none;
+}
+
+.nav>li>a:hover, .nav>li>a:focus {
+	color: white;
+	text-decoration: none;
+	background-color: #5872a7;
+}
+
+.nav>li>a {
+	color: white;
+}
+
+.nav .open>a, .nav .open>a:focus, .nav .open>a:hover {
+	background-color: rgba(255, 255, 255, 0.15);
+	border-color: #286090;
+}
+
+.navbar-brand, .navbar-nav>li>a {
+	text-shadow: 0 0px 0;
+	color: #f7fcff;
+	text-decoration: none;
+}
+
+.navbar-brand {
+	float: left;
+	height: 50px;
+	padding: 15px 15px;
+	font-size: 20px;
+	line-height: 20px;
+}
+
+.icon-bar {
+	display: block;
+	width: 22px;
+	height: 2px;
+	border-radius: 1px;
+	border: 1px solid white;
+}
+
+.marginBottom-0 {
+	margin-bottom: 0;
+}
+
+
+
+/*FOR SUB MENU Start*/
+.dropdown-submenu>a:after {
+	content: ""
+}
+
+@media ( min-width :768px) {
+	.dropdown-submenu {
+		position: relative;
+	}
+
+	/*Sub Menu To Show in Right*/
+	.dropdown-submenu .dropdown-menu {
+		top: 0;
+		left: 100%;
+		margin-top: -6px;
+		border-top-left-radius: 0;
+	}
+	.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+		color: black;
+		background-color: #efefef;
+	}
+
+	/*Sub Menu caret Vertical*/
+	.dropdown-submenu>a:after {
+		float: right;
+		margin-top: 6px;
+		margin-right: -10px;
+		border-left: 4px dashed;
+		border-top: 4px solid transparent;
+		border-bottom: 4px solid transparent
+	}
+}
+
+
+@media ( max-width :767px) {
+	.dropdown-submenu .dropdown-menu {
+		position: static;
+		margin-top: 0;
+		border: 0;
+		box-shadow: none
+	}
+
+	/*Caret Show Horizontal*/
+	.dropdown-submenu>a:after {
+		margin-left: 6px;
+		display: inline-block;
+		vertical-align: middle;
+		border-top: 4px dashed;
+		border-left: 4px solid transparent;
+		border-right: 4px solid transparent
+	}
+	.dropdown-menu>li>a:hover, .dropdown-menu>li>a:focus {
+		color: white;
+		text-decoration: none;
+		background-color: #5872a7;
+	}
+
+	/*For Show Menu Parent to Child Position*/
+	.navbar-nav>.dropdown>.dropdown-menu>.dropdown-submenu>.dropdown-menu>li>a
+		{
+		padding-left: 35px
+	}
+}
+/*Sub Menu End*/
+
+
+
+/*SLide*/

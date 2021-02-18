@@ -1,0 +1,354 @@
+System.register(['@angular/core', '../framework/rp-intercom.service', '@angular/router', '../framework/rp-http.service', '../framework/rp-references', '../util/rp-client.util'], function(exports_1, context_1) {
+    "use strict";
+    var __moduleName = context_1 && context_1.id;
+    var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+        var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+        if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+        else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+        return c > 3 && r && Object.defineProperty(target, key, r), r;
+    };
+    var __metadata = (this && this.__metadata) || function (k, v) {
+        if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+    };
+    var core_1, rp_intercom_service_1, router_1, rp_http_service_1, rp_references_1, rp_client_util_1;
+    var FrmStockComponent;
+    return {
+        setters:[
+            function (core_1_1) {
+                core_1 = core_1_1;
+            },
+            function (rp_intercom_service_1_1) {
+                rp_intercom_service_1 = rp_intercom_service_1_1;
+            },
+            function (router_1_1) {
+                router_1 = router_1_1;
+            },
+            function (rp_http_service_1_1) {
+                rp_http_service_1 = rp_http_service_1_1;
+            },
+            function (rp_references_1_1) {
+                rp_references_1 = rp_references_1_1;
+            },
+            function (rp_client_util_1_1) {
+                rp_client_util_1 = rp_client_util_1_1;
+            }],
+        execute: function() {
+            FrmStockComponent = (function () {
+                function FrmStockComponent(ics, ref, http, route, router) {
+                    this.ics = ics;
+                    this.ref = ref;
+                    this.http = http;
+                    this.route = route;
+                    this.router = router;
+                    this._obj = this.getDefaultObj();
+                    this._btn_flag = { "_delete": false, "_save": false };
+                    this._headerMenus = [{ 'id': 'details', 'description': 'Details' }, { 'id': 'location', 'description': 'Location' }];
+                    this._util = new rp_client_util_1.ClientUtil();
+                    this._usemultipleUnit = this.resetUnit();
+                    this._bin_datas = this.ref._lov3.bin_datas;
+                    this._status = '-2';
+                    this._array = [];
+                }
+                FrmStockComponent.prototype.ngAfterViewInit = function () {
+                    jQuery(document).ready(function () {
+                        jQuery("[id='contentdetails']").fadeIn(500);
+                    });
+                };
+                FrmStockComponent.prototype.tabchange = function (event) {
+                    var id = event.target.id;
+                    this.menuShowHide(id);
+                };
+                FrmStockComponent.prototype.menuShowHide = function (id) {
+                    var self = this;
+                    var size = this._headerMenus.length;
+                    jQuery(document).ready(function () {
+                        for (var i = 0; i < size; i++) {
+                            if (self._headerMenus[i].id == id) {
+                                jQuery("[id='content" + self._headerMenus[i].id + "']").fadeIn(500);
+                            }
+                            else {
+                                jQuery("[id='content" + self._headerMenus[i].id + "']").hide();
+                            }
+                        }
+                    });
+                };
+                FrmStockComponent.prototype.goSave = function () {
+                    var _this = this;
+                    this.prepareObj();
+                    console.log(this._obj.t1);
+                    var url = this.ics.getApiUrl() + 'StockSetup/save';
+                    //if (this.isValid()) {
+                    this.http.doPost(url, this._obj).subscribe(function (data) {
+                        if (data.message == "SUCCESS") {
+                            _this._obj.syskey = data.stocksyskey;
+                            _this._obj.t2 = data.stockcode;
+                            _this.updateLocation(data.stockHoldingsyskeyList, data.stockWHsyskeyList);
+                            //this.prepareUOM(data.stockUOMJunsyskeyList);
+                            _this._obj.stockbarcode = data.stockBarcodeList;
+                            _this._btn_flag._save = false;
+                            _this._btn_flag._delete = false;
+                            _this.showMessage(_this._util.MSG_TYPE.INFO, 'Saved Successfully.');
+                        }
+                        else if (data.message == "ManualRefExist") {
+                            _this._btn_flag._save = false;
+                            _this.showMessage(_this._util.MSG_TYPE.WARN, 'Manual Ref. Already Exists.');
+                        }
+                        else if (data.message == "OtherCodeExist") {
+                            _this._btn_flag._save = false;
+                            _this.showMessage(_this._util.MSG_TYPE.WARN, 'Other Code Already Exists.');
+                        }
+                        else if (data.message == "duplicateList") {
+                            _this.showMessage(_this._util.MSG_TYPE.WARN, 'Bar Code Already Exists.');
+                            _this._btn_flag._save = false;
+                        }
+                        else if (data.message == "FAIL") {
+                            _this.showMessage(_this._util.MSG_TYPE.WARN, 'Saving Fail.');
+                            _this._btn_flag._save = false;
+                        }
+                        else {
+                            _this.showMessage(_this._util.MSG_TYPE.WARN, data.message);
+                            _this._btn_flag._save = false;
+                        }
+                    }, function (error) {
+                        _this._btn_flag._save = false;
+                        _this.showMessage(_this._util.MSG_TYPE.WARN, 'Saving Fail.');
+                    });
+                    //}
+                };
+                FrmStockComponent.prototype.prepareObj = function () {
+                    var _this = this;
+                    this._obj.t7 = this._obj.t6;
+                    //this._obj.t5 = this._util.getUOMCode(this.ref._lov3.uomdatas, this._obj.n36);
+                    //this._obj.stockuomjun[0].n2 = this._obj.n36;
+                    //this._obj.stockuomjun[1].n2 = this._obj.n36;
+                    this._obj.n40 = +this._obj.n40;
+                    this._obj.n55 = +this._obj.n55;
+                    this.ref._lov3.uomdatas.filter(function (x) { return x.syskey == _this._obj.n36; }).map(function (x) { _this._obj.t11 = x.t4; }); //uom operator
+                    this._obj.username = this.ics._profile.userName;
+                    this._obj.userid = this.ics._profile.userid;
+                    this._obj.userSysKey = this.ics._profile.userSk;
+                    this._obj.n50 = +this._usemultipleUnit.sellUnit;
+                    this._obj.n52 = +this._usemultipleUnit.buyUnit;
+                    this._obj.n42 = +this._obj.n42;
+                    //this.prepareUOMObj();
+                    this.prepareLocation();
+                    this._obj.stockMemo = this._obj.stockMemo.filter(function (x) { return x.t1 != ""; });
+                };
+                // isValid() {
+                //     this._btn_flag._save = true;
+                //     if(this.ref._lov3.sysconfig.isAutoStockCode == "0"){
+                //         if (this._obj.t2.trim().length === 0 && this._obj.syskey == "0") {
+                //             this._obj.t2 = "TBA";
+                //         }
+                //         if (this._obj.t2.trim().length === 0 || (this._obj.t2.trim() == "TBA" && this._obj.syskey != "0")) {
+                //             this.showMessage(this._util.MSG_TYPE.WARN, 'Invalid Ref.');
+                //             return false;
+                //         }  
+                //     } 
+                //     if (this._obj.t3.trim().length == 0) {
+                //         this._btn_flag._save = false;
+                //         this.showMessage(this._util.MSG_TYPE.WARN, 'Invalid Description.');
+                //         return false;
+                //     }
+                //     return true;
+                // }
+                FrmStockComponent.prototype.getDefaultObj = function () {
+                    return { "syskey": "0", "createddate": "", "modifieddate": "", "userid": "", "username": "", "territorycode": "0", "salescode": "0", "projectcode": "0", "ref1": "0", "ref2": "0", "ref3": "0", "ref4": "0", "ref5": "0", "ref6": "0", "recordStatus": 1, "syncStatus": 0, "syncBatch": "", "t1": "", "t2": "TBA", "t3": "", "t4": "", "t5": "", "t6": "", "t7": "", "t8": "", "t9": "", "t10": "", "n1": 0, "n2": 0, "n3": 0, "n4": "0", "n5": "0", "n6": "0", "n7": "0", "n8": "0", "n9": "0", "n10": "0", "n11": "0", "n12": "0", "n13": "0", "n14": "0", "n15": "0", "n16": "0", "n17": "0", "n18": "0", "n19": 0.0, "n20": 0.0, "n21": 0.0, "n22": 0.0, "n23": 0.0, "n24": 0.0, "n25": 0.0, "n26": 0.0, "n27": 0.0, "n28": 0.0, "n29": 0.0, "n30": 0.0, "n31": 0, "n32": 0, "n33": "0", "n34": "0", "n35": 0.0, "n36": "0", "userSysKey": "0", "n37": 0, "n38": "0", "n39": 0.0, "t11": "", "n40": 0, "n41": 0, "n42": 0, "n43": 0, "n44": 0, "n45": 0, "n46": 0, "n47": 0.0, "n48": 0, "t12": "", "t13": "", "n49": 0, "n50": 0, "n51": 0, "n52": 0, "n53": 0, "n54": 0, "n55": 0, "n56": 0, "t14": "", "n57": "0", "n58": 0, "t15": "", "n59": 0, "n60": 0, "n61": 0, "n62": 0, "n63": 0, "n64": 0, "n65": 0, "n66": 0, "t16": "", "t17": "", "t18": "", "t19": "", "n67": "", "n68": "0", "n69": "0", "n70": 0, "n71": 0, "n72": 0, "categorycode": "", "groupcode": "", "stockholding": [], "stockWH": [], "stockuomjun": [], "stockbarcode": [], "stockMemo": [] };
+                };
+                FrmStockComponent.prototype.updateLocation = function (h, w) {
+                    var _this = this;
+                    this._obj.stockholding = this._obj.stockholding.filter(function (e) { return (e.recordStatus != 4); });
+                    this._obj.stockWH = this._obj.stockWH.filter(function (e) { return (e.recordStatus != 4); });
+                    h.forEach(function (d, i) { _this._obj.stockholding[i].syskey = d; _this._obj.stockholding[i].parentid = _this._obj.syskey; });
+                    w.forEach(function (d, i) { _this._obj.stockWH[i].syskey = d; _this._obj.stockWH[i].parentid = _this._obj.syskey; });
+                };
+                FrmStockComponent.prototype.showMessage = function (t, m) {
+                    this.ics.sendBean({ t1: "rp-snack", t2: t.type, t3: m });
+                };
+                FrmStockComponent.prototype.resetUnit = function () {
+                    return { "sellUnit": 0, "buyUnit": 0 };
+                };
+                FrmStockComponent.prototype.prepareLocation = function () {
+                    var _self = this;
+                    if (this._obj.stockholding.length == 0 && this._obj.stockWH.length == 0) {
+                        this._obj.stockholding.push(this.getDefaultStockHolding());
+                        this._obj.stockWH.push(this.getDefaultStockWH());
+                    }
+                };
+                FrmStockComponent.prototype.getDefaultStockHolding = function () {
+                    return { "syskey": "0", "createddate": "", "modifieddate": "", "userid": this.ics._profile.userid, "username": this.ics._profile.userName, "parentid": "", "recordStatus": 1, "syncStatus": 0, "syncBatch": "", "n1": "0", "n2": "0", "n3": 0.0, "n4": 0, "n5": 0, "n6": 0, "n7": "", "userSysKey": this.ics._profile.userSk };
+                };
+                FrmStockComponent.prototype.getDefaultStockWH = function () {
+                    return { "syskey": "0", "createddate": "", "modifieddate": "", "userid": this.ics._profile.userid, "username": this.ics._profile.userName, "parentid": "0", "recordStatus": 1, "syncStatus": 0, "syncBatch": "", "n1": "0", "n2": "0", "n3": "0", "n4": "0", "n5": "0", "n6": "0", "n7": "0", "n8": "0", "n9": "0", "n10": 0.0, "n11": 0.0, "n12": 0.0, "n13": 0.0, "n14": 0.0, "n15": 0.0, "n16": 0.0, "n17": 0.0, "n18": 0.0, "n19": 0.0, "n20": 0, "n21": 0, "n22": "", "userSysKey": this.ics._profile.userSk };
+                };
+                FrmStockComponent.prototype.goAdd = function () {
+                    console.log('in add');
+                    jQuery("#stocksetup").modal('show');
+                    this.unchecked();
+                    this._status = '-1';
+                    this._location = '';
+                };
+                FrmStockComponent.prototype.unchecked = function () {
+                    this._bin_datas.filter(function (c) { return c.checked = false; });
+                };
+                FrmStockComponent.prototype.goDone = function () {
+                    if (this._location != '' && this._status != '-2') {
+                        if (this._location == '-1') {
+                            for (var _i = 0, _a = this.ref._lov3.locdatas; _i < _a.length; _i++) {
+                                var o = _a[_i];
+                                this.addLoc(o.code);
+                            }
+                        }
+                        else {
+                            this.addLoc(this._location);
+                        }
+                        jQuery("#stocksetup").modal('hide');
+                    }
+                    else {
+                        this.showMessage(this._util.MSG_TYPE.WARN, 'Select Location');
+                    }
+                };
+                FrmStockComponent.prototype.addLoc = function (_location) {
+                    //add status -1 location ''
+                    var _self = this;
+                    var temp = [];
+                    var count = 0;
+                    var index = -1;
+                    for (var i = 0; i < this._bin_datas.length; i++) {
+                        if (!this._bin_datas[i].checked) {
+                            count++;
+                        }
+                        temp = this._obj.stockholding.filter(function (e) { return (e.n1 == _location && e.n2 == _self._bin_datas[i].code && e.recordStatus != 4); });
+                        if (temp.length > 0) {
+                            if (!this._bin_datas[i].checked) {
+                                for (var i_1 = 0; i_1 < this._obj.stockholding.length; i_1++) {
+                                    if (this._obj.stockholding[i_1].n1 == temp[0].n1 && this._obj.stockholding[i_1].n2 == temp[0].n2 && this._obj.stockholding[i_1].recordStatus != 4) {
+                                        index = i_1;
+                                        break;
+                                    }
+                                }
+                                if (index > -1)
+                                    this._obj.stockholding[index].recordStatus = 4;
+                            }
+                        }
+                        else {
+                            var obj = this.getDefaultStockHolding();
+                            if (this._bin_datas[i].checked) {
+                                obj.n1 = _location;
+                                obj.n2 = this._bin_datas[i].code;
+                                this._obj.stockholding.push(obj);
+                            }
+                        }
+                    }
+                    if (count == this._bin_datas.length) {
+                        var obj = this.getDefaultStockHolding();
+                        obj.n1 = _location;
+                        this._obj.stockholding.push(obj);
+                    }
+                    var temp_arr = [];
+                    temp_arr = this._obj.stockWH.filter(function (e) { return e.n1 == _location && e.recordStatus != 4; });
+                    if (temp_arr.length == 0) {
+                        var temp_obj = this.getDefaultStockWH();
+                        temp_obj.n1 = _location;
+                        this._obj.stockWH.push(temp_obj);
+                    }
+                };
+                FrmStockComponent.prototype.getWHLength = function () {
+                    return (this._obj.stockWH.filter(function (x) { return x.recordStatus != 4; }).length == 0);
+                };
+                FrmStockComponent.prototype.ngOnInit = function () {
+                    var _this = this;
+                    if (this.ics.getRole() > 0) {
+                        this.sub = this.route.params.subscribe(function (params) {
+                            var self = _this;
+                            self.ref.getV6Location(function () {
+                                self.ref.getV6BinData(function () {
+                                    self._bin_datas = self.ref._lov3.bin_datas;
+                                    /*let id = params['id'];
+                                         if (id != null && id != "") {
+                                            self.goReadBySyskey(id);
+                                         } else {
+                                             self.goNew();
+                                               self.ref.hideLoading();
+                                                }
+                                        });
+                                    });*/
+                                });
+                            });
+                        });
+                    }
+                };
+                FrmStockComponent.prototype.readData = function (p) {
+                    jQuery("#stocksetup").modal('show');
+                    this.unchecked();
+                    this._array = this._obj.stockholding.filter(function (f) { return f.n1 == p; });
+                    this._location = p;
+                    this._status = this._location;
+                    var _self = this;
+                    var temp_arr;
+                    var _loop_1 = function(j) {
+                        temp_arr = _self._bin_datas.filter(function (f) {
+                            for (var i = j; i < _self._array.length; i++) {
+                                return (f.code == _self._array[i].n2 && _self._array[i].recordStatus != 4);
+                            }
+                        });
+                        if (temp_arr != undefined && temp_arr != "")
+                            temp_arr[0].checked = true;
+                    };
+                    for (var j = 0; j < this._array.length; j++) {
+                        _loop_1(j);
+                    }
+                };
+                FrmStockComponent.prototype.getLocationCode = function (SK) {
+                    if (SK != '') {
+                        var arr = this.ref._lov3.locdatas.filter(function (f) { return f.code === SK; })[0];
+                        return (arr != undefined) ? arr.t1 : "";
+                    }
+                };
+                FrmStockComponent.prototype.getLocationName = function (SK) {
+                    if (SK != '') {
+                        var arr = this.ref._lov3.locdatas.filter(function (f) { return f.code === SK; })[0];
+                        return (arr != undefined) ? arr.description : "";
+                    }
+                };
+                FrmStockComponent.prototype.deleteLocation = function (i) {
+                    var _self = this;
+                    var temp_arr = [];
+                    if (this._obj.stockWH[i].syskey != "0") {
+                        this._obj.stockWH[i].recordStatus = 4;
+                        temp_arr = this._obj.stockholding.filter(function (x) { return (x.n1 == _self._obj.stockWH[i].n1 && x.syskey != "0" && x.recordStatus != 4); });
+                        this._obj.stockholding.forEach(function (h) {
+                            temp_arr.forEach(function (element) {
+                                if (h.n1 == element.n1 && h.recordStatus != 4) {
+                                    h.recordStatus = 4;
+                                }
+                            });
+                        });
+                    }
+                    else {
+                        this._obj.stockholding = this._obj.stockholding.filter(function (e) { return (_self._obj.stockWH[i].n1 != e.n1 && e.syskey == "0" && e.recordStatus != "4"); });
+                        this._obj.stockWH.splice(i, 1);
+                    }
+                };
+                FrmStockComponent.prototype.goNew = function () {
+                    this._btn_flag._save = false;
+                    this._btn_flag._delete = true;
+                    this._obj = this.getDefaultObj();
+                };
+                FrmStockComponent.prototype.onList = function () {
+                    this.router.navigate(['/stocklist']);
+                };
+                FrmStockComponent = __decorate([
+                    core_1.Component({
+                        selector: 'frm-stock',
+                        template: "\n    <div class=\"container col-md-12 col-sm-12 col-xs-12\" style=\"padding: 0px 5%;\">\n        <div class=\"row clearfix\">\n            <div class=\"col-xs-12 col-sm-12 col-md-12 col-lg-12  column col-sm-offset-0 col-md-offset-0 col-lg-offset-0\"> \n                <form class= \"form-horizontal\" ngNoForm> \n                    <legend>\n                        <div class=\"row\">\n                            <div class=\"col-md-12\">\n                                Stock\n                                <span class='glyphicon glyphicon-remove-circle clickable pull-right'  style=\"font-size: 19px;color: #3b5998;padding-right: 10px;\"></span>\n                            </div>    \n                        </div>        \n                    </legend>\n                    <div class=\"cardview\" style=\"min-height:830;margin-bottom:5px;\" >\n                    <div>\n                        <div>\n                            <div class=\"row  col-md-12\"> \n                                <button class=\"btn btn-primary btn-sm\" type=\"button\" (click)=\"onList()\" >List</button>  \n                                <button class=\"btn btn-primary btn-sm\" id=\"new\" type=\"button\"  (click)=\"goNew()\">New</button>      \n                                <button class=\"btn btn-primary btn-sm\"    id=\"save\" type=\"button\" (click) = \"goSave();\">Save</button> \n                                <button class=\"btn btn-danger btn-sm\"  id=\"delete\" type=\"button\" >Delete</button> \n                            </div>\n                            <div class=\"row col-md-12 col-sm-12 col-xs-12\">&nbsp;</div>\n                                <ul class=\"nav nav-tabs\" id=\"myTab\">         \n                                    <li *ngFor=\"let data of _headerMenus;let i = index\" [ngClass]=\"{'active': i == 0}\"  ><a data-toggle=\"tab\" href=\"\" id=\"{{data.id}}\" (click)=\"tabchange($event,i)\">{{data.description}}</a></li>          \n                                </ul> \n                            <div class=\"tab-content\" id=\"myTabContent\" style=\"margin-left:auto;margin-bottom:30px;margin-top:5px;\"> \n                                 <div id=\"contentdetails\" class=\"tab-pane\"> \n                                    <div class=\"col-md-12\" style=\"padding: 0px!important;\">\n                                      <div class=\"salecard salecard-container fs-card\" style=\"background: white;\">\n                                        <legend class=\"legendCaption\">Stock Item</legend> \n \n                                <div class=\"form-group\">\n                                    <div>\n                                        <label class=\"col-md-2 control-label\" style=\" text-align: left;\">Stock Code</label>\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input [(ngModel)]=\"_obj.t2\" id=\"code\" type=\"text\" class=\"form-control input-sm\" autofocus/>\n                                    </div>\n                                     <div>\n                                        <label class=\"col-md-2 control-label\" style=\" text-align: left;\">Other Code</label>\n                                    </div> \n                                    <div class=\"col-md-2 col-sm-9\">                  \n                                       <input [(ngModel)]=\"_obj.t1\" type=\"text\" class=\"form-control input-sm\" autofocus/>\n                                    </div>\n                                    <!--<div class=\"col-md-2 col-sm-2\">\n                                        <button class=\"btn btn-primary btn-sm\" type=\"button\" >Multi Bar Code</button> \n                                    </div>-->\n                                </div>      \n                                \n\n                                <div class=\"form-group\">\n                                    <div>\n                                        <label class=\"col-md-2 control-label\" style=\" text-align: left;\">Description</label>\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input [(ngModel)]=\"_obj.t3\" type=\"text\" class=\"form-control input-sm\" autofocus/>\n                                    </div>\n                                    <div>\n                                        <label class=\"col-md-2 control-label\" style=\" text-align: left;\">Short Description</label>\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input [(ngModel)]=\"_obj.t4\" type=\"text\"  class=\"form-control input-sm\" autofocus/>\n                                    </div>\n                                </div>\n\n                               \n                               \n                                <div class=\"form-group\">\n                                    <div>\n                                        <label class=\"col-md-2 control-label\" style=\" text-align: left;\">Model No.</label>\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                        <input [(ngModel)]=\"_obj.t14\" type=\"text\" class=\"form-control input-sm\" autofocus/>\n                                    </div>\n                                    <!--\n                                    <div>\n                                        <label class=\"col-md-2 control-label\" style=\" text-align: left;\">Packing</label>\n                                    </div>\n                                    <div class=\"col-md-4\">\n                                       <select  class=\"form-control input-sm clickable\" >\t\n                                            <option *ngFor=\"let data of ref._lov3.packing_datas\" [value]=\"data.code\">{{data.description}}</option>\t\n                                        </select>\n                                    </div>-->\n                                </div>\n                                <!--\n                                <div class=\"form-group\">\n                                  <div class=\"col-md-3\">\n                                        <label><input type=\"checkbox\"  >&nbsp;Use Batch Serial</label>\n                                  </div>\n                                  <div class=\"col-md-3\">\n                                        <label><input type=\"checkbox\" >&nbsp;Use Dimension</label>\n                                  </div>                                  \n                                </div>\n                                -->\n                                \n                               \n                            </div>                        \n                      </div>\n                        </div>\n                        <div id=\"contentlocation\" class=\"tab-pane\"> \n                           <div class=\"row  col-md-6\">    \n                                <table  class=\"table table-striped table-condensed table-hover tblborder\">\n                                    <thead>\n                                        <tr>\n                                            <th style=\"width: 3%;\"><span><i class=\"glyphicon glyphicon-plus-sign clickable\"  (click)=\"goAdd()\"  style=\"font-size:17px;\"></i></span></th>\n                                            <th style=\"width:10%;\">Code</th>\n                                            <th style=\"width:20%;\">Description</th>\n                                            <th style=\"width:10%;\">Average Cost</th>\n                                            <th style=\"width:4%;\"></th>\n                                        </tr>\n                                    </thead>\n                                    <tbody>\n                                        <tr *ngFor=\"let obj of _obj.stockWH;let i=index\">\n                                            <td style=\"width: 3%;text-align:center;\" *ngIf=\"obj.recordStatus==1\">{{i+1}}</td>\n                                            <td class=\"clickable\" style=\"padding-left: 10px;width:10%;\" *ngIf=\"obj.recordStatus==1\"><a (click)=\"readData(obj.n1)\">{{getLocationCode(obj.n1)}}</a></td>\n                                            <td  style=\"padding-left: 10px;width:20%;\" *ngIf=\"obj.recordStatus==1\">{{getLocationName(obj.n1)}}</td>\n                                            <td  style=\"text-align:right;width:10%;\" *ngIf=\"obj.recordStatus==1\">{{_util.formatMoney(obj.n10)}}</td>\n                                            <td style=\"width:4%;\" *ngIf=\"obj.recordStatus==1\"><span class='glyphicon glyphicon-remove-circle clickable' (click)=\"deleteLocation(i)\" style=\"font-size: 20px;color: #3b5998;\"></span></td>\n                                        </tr>                                            \n                                    </tbody>\n                                </table>  \n                            </div>        \n                        </div>\n                        </div>\n                        </div>\n                    </div>\n                  </div>\n                </form>\n            </div>\n        </div>\n    </div>\n    <div id=\"stocksetup\" class=\"modal fade\">\n        <div class=\"modal-dialog\">\n            <div class=\"modal-content\">\n                <div class=\"modal-header\">\n\t\t\t\t    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">\u00D7</button>\n\t\t\t\t    <h4 class=\"modal-title\">Location/Bin</h4>\n\t\t\t    </div>\n            \n                <div class=\"modal-body\">\n                    <div class=\"row form-group col-md-12 col-sm-12\" >\n                        <label class=\"col-md-2  control-label\" style=\" text-align: left;\" >Location</label> \n                        <div class=\"col-md-4 col-sm-4\">\n                            <select [(ngModel)]=\"_location\" class=\"form-control input-sm clickable\">\n                                <option value=\"-1\" *ngIf=\"getWHLength()\">All</option>\n                                <option *ngFor=\"let item of (ref._lov3.locdatas)\" value=\"{{item.code}}\">{{item.description}}</option><!--| locationfilter: _obj.stockWH:_status-->\n                            </select>\n                        </div> \n                    </div>\n                    <div class=\"salecard salecard-container\" style=\"background: white;margin-top: 50px;height: 300px;\">                    \n                        <legend style=\"margin-top: -5px;font-size: medium;\">Bin</legend>                    \n                        <table  class=\"table table-striped table-condensed table-hover tblborder\" style=\"overflow-y: auto;display: inline-block;height: 250px;\">\n                            <thead>\n                                <tr>\n                                    <th></th>\n                                    <th style=\"width:40%;\">Code</th>\n                                    <th style=\"width:50%;\">Description</th>\n                                </tr>\n                            </thead>\n                            <tbody>\n                            <tr *ngFor=\"let obj of _bin_datas; let i = index\">\n                                <td><input type=\"checkbox\" #i [(ngModel)]=\"obj.checked\"></td>\n                                <td class=\"clickable\" style=\"padding-left: 10px;\">{{obj.t1}}</td>\n                                <td style=\"width:300px;\">{{obj.description}}</td>\n                            </tr>\n                            </tbody>\n                        </table>\n                    </div>\n                </div>\n                <div class=\"modal-footer\">\n                     <button class=\"btn btn-primary btn-sm\" type=\"button\" (click)=\"goDone()\">Done</button>\n                </div>\n            </div>\n        </div>\n    </div>\n    ",
+                    }), 
+                    __metadata('design:paramtypes', [rp_intercom_service_1.RpIntercomService, rp_references_1.RpReferences, rp_http_service_1.RpHttpService, router_1.ActivatedRoute, router_1.Router])
+                ], FrmStockComponent);
+                return FrmStockComponent;
+            }());
+            exports_1("FrmStockComponent", FrmStockComponent);
+        }
+    }
+});
+//# sourceMappingURL=frmStock.component.js.map

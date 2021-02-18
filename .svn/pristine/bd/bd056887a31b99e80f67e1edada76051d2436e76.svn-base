@@ -1,0 +1,237 @@
+package com.nirvasoft.web.pos.service;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nirvasoft.web.pos.dao.ElementaryDao;
+import com.nirvasoft.web.pos.dao.StockDao;
+import com.nirvasoft.web.pos.model.CommonData;
+import com.nirvasoft.web.pos.model.StockBarCodeData;
+import com.nirvasoft.web.pos.model.StockData;
+import com.nirvasoft.web.pos.model.UserData;
+import com.nirvasoft.web.pos.util.CommonEnum;
+import com.nirvasoft.web.pos.util.ConnectionUtil;
+import com.nirvasoft.web.pos.util.SyskeyUtil;
+import org.apache.log4j.Logger;
+@Service
+public class StockService {
+	final static Logger logger = Logger.getLogger(StockService.class);
+	@Autowired
+	StockDao stockSetupDao;
+	@Autowired
+	ElementaryDao elementaryDao;
+	public HashMap<String, Object> save(StockData data, UserData user) {
+		HashMap<String, Object> result = new HashMap<>();
+		HashMap<String, Object> stockResult = new HashMap<>();
+		HashMap<String, Object> stockUOMJunResult = new HashMap<>();
+		HashMap<String, Object> stockHoldingResult = new HashMap<>();
+		HashMap<String, Object> stockWHResult = new HashMap<>();
+		HashMap<String, Object> stockBCResult = new HashMap<>();
+		HashMap<String, Object> stockMemoResult = new HashMap<>();
+		CommonData companydata = new CommonData();
+		int effectedRow = 0;
+
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId())) {
+			conn.setAutoCommit(false);
+			companydata = stockSetupDao.loadCompanyInformation(conn);
+
+			if (Integer.parseInt((companydata.getT1() + "")) == CommonEnum.StockCodeType.AutoByCategoryAndStkGrpCode
+					.getCode()) {
+				if (data.getT2().equals("TBA")) {
+					data.setT2(stockSetupDao.getStockCodeCatGroup(data, conn));
+				}
+			}
+
+			if (data.getSyskey().equals("0")) {
+				data.setSyskey(SyskeyUtil.getSyskey() + "");
+			}
+
+			if (data.getT2().equals("TBA")) {
+				data.setT2(stockSetupDao.getStockCode(conn));
+			}
+
+			// ifexist stock code
+			if (stockSetupDao.getstockCodeExist(data.getT2(), data.getSyskey(), conn) > 0) {
+				result.put("message", "ManualRefExist");
+				return result;
+			}
+
+			if (!data.getT1().equals("")) {
+				// ifexit other code
+				if (stockSetupDao.getstockOtherCodeExist(data.getT1(), conn) > 0) {
+					result.put("message", "OtherCodeExist");
+					return result;
+				}
+			}
+
+			if (data.getStockbarcode().size() > 0) {
+				// ifexist barcode
+				if (Integer.parseInt(checkBarcode(data, conn).get("effectedRow") + "") > 0) {
+					result.put("message", "duplicateList");
+					return result;
+				}
+			}
+
+			stockResult = stockSetupDao.saveStock(data, conn);
+
+			if (Integer.parseInt(stockResult.get("effectedRow") + "") > 0) {
+				stockHoldingResult = stockSetupDao.saveStockHolding(data, conn);
+			}
+			if (Integer.parseInt(stockHoldingResult.get("effectedRow") + "") > 0) {
+				stockWHResult = stockSetupDao.saveStockWH(data, conn);
+				
+			}
+			/*if (Integer.parseInt(stockWHResult.get("effectedRow") + "") > 0) {
+				effectedRow = stockSetupDao.savePriceBandStock(data, conn);
+			}
+			if (effectedRow > 0) {
+				stockUOMJunResult = stockSetupDao.saveStockUOMJun(data, conn);
+			}
+			if (Integer.parseInt(stockUOMJunResult.get("effectedRow") + "") > 0) {
+				stockBCResult = stockSetupDao.saveBarCode(data, conn);
+				effectedRow = Integer.parseInt(stockBCResult.get("effectedRow") + "");
+			}
+			if (effectedRow > 0) {
+				if(data.getStockMemo().size() > 0){
+					stockMemoResult = stockSetupDao.saveMemo(data, conn);
+					effectedRow = Integer.parseInt(stockMemoResult.get("effectedRow") + "");
+				}
+			}*/
+			//if (effectedRow > 0) {
+			if (Integer.parseInt(stockWHResult.get("effectedRow") + "") > 0) {
+				conn.commit();
+				result.put("message", "SUCCESS");
+				result.put("stocksyskey", stockResult.get("stocksyskey"));
+				result.put("stockcode", stockResult.get("stockcode"));
+				result.put("stockHoldingsyskeyList", stockHoldingResult.get("stockHolingsyskeyList"));
+				result.put("stockWHsyskeyList", stockWHResult.get("stockWHsyskeyList"));
+				result.put("stockUOMJunsyskeyList", stockUOMJunResult.get("stockUOMJunsyskeyList"));
+				result.put("stockBarcodeList", stockBCResult.get("barcodeList"));
+			} else {
+				conn.rollback();
+				result.put("message", "FAIL");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("message", "FAIL");
+		}
+		return result;
+	}
+
+	public HashMap<String, Object> update(StockData data, UserData user) {
+		HashMap<String, Object> result = new HashMap<>();
+		HashMap<String, Object> stockResult = new HashMap<>();
+		HashMap<String, Object> stockUOMJunResult = new HashMap<>();
+		HashMap<String, Object> stockHoldingResult = new HashMap<>();
+		HashMap<String, Object> stockWHResult = new HashMap<>();
+		HashMap<String, Object> stockMemoResult = new HashMap<>();
+		int effectedRow = 0;
+		CommonData companydata = new CommonData();
+		CommonData oldcatandgroupsk = new CommonData();
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId())) {
+			conn.setAutoCommit(false);
+			companydata = stockSetupDao.loadCompanyInformation(conn);
+
+			if (Integer.parseInt((companydata.getT1() + "")) == CommonEnum.StockCodeType.AutoByCategoryAndStkGrpCode
+					.getCode()) {
+				oldcatandgroupsk = stockSetupDao.selectoldCatandgroup(data.getSyskey(), conn);
+				if (!oldcatandgroupsk.getT1().equals(data.getN17())
+						&& !oldcatandgroupsk.getT2().equals(data.getN33())) {
+					data.setT2(stockSetupDao.getStockCodeCatGroup(data, conn));
+				}
+			}
+
+			// ifexist stock code
+			if (stockSetupDao.getstockCodeExist(data.getT2(), data.getSyskey(), conn) > 0) {
+				result.put("message", "FAIL");
+				return result;
+			}
+
+			if (!data.getT1().equals("")) {
+				// ifexist other code in other stock
+				if (stockSetupDao.getExistOthercodeorNot(data.getSyskey(), data.getT1(), conn) > 0) {
+					result.put("message", "FAIL");
+					return result; 
+				}
+			}
+			/*if (data.getStockbarcode().size() > 0) {
+				// ifexist barcode
+				if (Integer.parseInt(checkBarcode(data, conn).get("effectedRow") + "") > 0) {
+					result.put("message", "duplicateList");
+					return result;
+				}
+			}*/
+			stockResult = stockSetupDao.updateStock(data, conn);
+
+			if (Integer.parseInt(stockResult.get("effectedRow") + "") > 0) {
+				stockWHResult = stockSetupDao.updateStockWH(data, conn);
+				effectedRow = Integer.parseInt(stockWHResult.get("effectedRow") + "");
+			}
+
+			if (effectedRow > 0) {
+				stockHoldingResult = stockSetupDao.updateStockHolding(data, conn);
+				effectedRow = Integer.parseInt(stockHoldingResult.get("effectedRow") + "");
+			}
+
+			/*if (effectedRow > 0) {
+				effectedRow = stockSetupDao.savePriceBandStock(data, conn);
+			}
+
+			if (effectedRow > 0) {
+				stockUOMJunResult = stockSetupDao.updateStockUOMJun(data, conn);
+				effectedRow = Integer.parseInt(stockUOMJunResult.get("effectedRow") + "");
+			}
+			
+			if (effectedRow> 0) {
+				stockSetupDao.deleteMemo(data.getSyskey(), conn);
+				if(data.getStockMemo().size() > 0){
+					stockMemoResult = stockSetupDao.saveMemo(data, conn);
+					effectedRow = Integer.parseInt(stockMemoResult.get("effectedRow") + "");
+				}
+			}*/
+
+			if (effectedRow > 0) {
+				conn.commit();
+				result.put("message", "SUCCESS");
+				result.put("stocksyskey", stockResult.get("stocksyskey"));
+				result.put("stockcode", stockResult.get("stockcode"));
+				result.put("stockHoldingsyskeyList", stockHoldingResult.get("stockholdingsyskey"));
+				result.put("stockWHsyskeyList", stockWHResult.get("stockWHsyskeyList"));
+				result.put("stockUOMJunsyskeyList", stockUOMJunResult.get("stockUOMJunsyskeyList"));
+				result.put("stockBarcodeList", stockUOMJunResult.get("stockBarcodeList"));
+			} else {
+				conn.rollback();
+				result.put("message", "FAIL");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			result.put("message", e.getMessage());
+		}
+
+		return result;
+	}
+	public HashMap<String, Object> checkBarcode(StockData data, Connection conn) throws SQLException {
+		String barcode = "";
+		int effectedrow = 0;
+		ArrayList<String> codeList = new ArrayList<>();
+		HashMap<String, Object> result = new HashMap<>();
+
+		for (StockBarCodeData bCode : data.getStockbarcode()) {
+			barcode = stockSetupDao.getstockBarCodeExist(bCode.getT1(),data.getSyskey(),bCode.getN1(), conn);
+			codeList.add(barcode);
+			if(!barcode.equals(""))
+			effectedrow = 1;
+		}
+
+		result.put("duplicateList", codeList);
+		result.put("effectedRow", effectedrow);
+		return result;
+	}
+}
