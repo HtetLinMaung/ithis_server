@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class GeneralWardData {
+public class GeneralWardData extends PatientInfoData {
 	private long syskey;
 	private int pId;
 	private int RgsNo;
@@ -59,6 +59,9 @@ public class GeneralWardData {
 		map.put("outcomeMetAt", outcomeMetAt);
 		map.put("outcomeMetName", outcomeMetName);
 		map.put("detailSyskey", detailSyskey);
+		map.put("patientId", patientId);
+		map.put("patientName", patientName);
+		map.put("adNo", adNo);
 		map.put("detailList", detailList.stream()
 				.map((detail) -> detail.toHashMap())
 				.collect(Collectors.toList()));

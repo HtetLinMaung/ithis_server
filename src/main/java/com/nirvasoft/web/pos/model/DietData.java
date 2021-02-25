@@ -2,7 +2,7 @@ package com.nirvasoft.web.pos.model;
 
 import java.util.HashMap;
 
-public class DietData {
+public class DietData extends PatientInfoData {
 	private long syskey;
 	private int pId;
 	private int RgsNo;
@@ -34,6 +34,9 @@ public class DietData {
 		map.put("dietEnteralFeed", dietEnteralFeed);
 		map.put("notedBy", notedBy);
 		map.put("remark", remark);
+		map.put("patientId", patientId);
+		map.put("patientName", patientName);
+		map.put("adNo", adNo);
 		return map;
 	}
 	

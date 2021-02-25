@@ -23,7 +23,10 @@ import com.nirvasoft.web.pos.util.ServerUtil;
 @Repository
 public class InpatientMedicalRecordDao {
 	public ArrayList<InstructionData> getAllInstructions(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, t1, t2, t3, t4, t5, pId FROM [dbo].[tblInstruction]";
+		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.pId, "
+				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblInstruction] "
+				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<InstructionData> instructions = new ArrayList<>();
@@ -36,13 +39,20 @@ public class InpatientMedicalRecordDao {
 			data.setInstruction(rs.getString("t4"));
 			data.setRemarks(rs.getString("t5"));
 			data.setpId(rs.getLong("pId"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
 			instructions.add(data);
 		}
 		return instructions;
 	}
 	
 	public ArrayList<StatMedicationData> getAllStatMedications(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, t1, t2, t3, t4, t5, t6, t7, t8, t9, n1, n2, n3, n4, n6, n7 FROM [dbo].[tblStatMedication]";
+		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.t6, l.t7, l.t8, l.t9, "
+				+ "l.n1, l.n2, l.n3, l.n4, l.n6, l.n7, "
+				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblStatMedication] "
+				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<StatMedicationData> statMedications = new ArrayList<>();
@@ -62,6 +72,9 @@ public class InpatientMedicalRecordDao {
 			data.setDose(rs.getDouble("n2"));
 			data.setDoseTypeSyskey(rs.getInt("n3"));
 			data.setDoseRemarkSyskey(rs.getInt("n4"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
 			statMedications.add(data);
 		}
 		return statMedications;
@@ -69,7 +82,10 @@ public class InpatientMedicalRecordDao {
 	
 
 	public ArrayList<BloodData> getAllBloods(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, t1, t2, t3, t6, t7, t8, t9, t10, n1, n2, n3, n4 FROM tblBlood";
+		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t8, l.t9, l.t10, "
+				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo FROM tblBlood AS l "
+				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, "
+				+ "RefNo From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<BloodData> list = new ArrayList<>();
@@ -89,6 +105,9 @@ public class InpatientMedicalRecordDao {
 			data.setDose(rs.getDouble("n2"));
 			data.setDoseTypeSyskey(rs.getInt("n3"));
 			data.setFrequency(rs.getDouble("n4"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
 			
 			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivityBlood] WHERE parentId = ?";
 			stmt = conn.prepareStatement(sql);
@@ -111,7 +130,10 @@ public class InpatientMedicalRecordDao {
 	}
 	
 	public ArrayList<DietData> getAllDiets(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, t1, t2, t3, t4, t6, t7 FROM tblDiet";
+		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t4, l.t6, l.t7, "
+				+ "v.patientid, v.RgsName, v.RefNo FROM tblDiet AS l "
+				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<DietData> list = new ArrayList<>();
@@ -124,6 +146,9 @@ public class InpatientMedicalRecordDao {
 			data.setRemark(rs.getString("t4"));
 			data.setDate(rs.getString("t6"));
 			data.setTime(rs.getString("t7"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
 			list.add(data);
 		}
 		return list;
@@ -787,37 +812,23 @@ public class InpatientMedicalRecordDao {
 		return list;
 	}
 	
-	public ArrayList<NonParenteralData> getNonParenteralsInitial(FilterRequest filterRequest, Connection conn) throws SQLException {
-		
-		String sql = "INSERT INTO tblNonParenteral (syskey, parentid, n1, t2, n2, n3, t1, RgsNo, n4) "
-				+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, t1.doseSysKey, "
-				+ "t1.StockID, t1.rgsno, t1.Frequency "
-				+ "from viewNonParenteral AS t1 LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
-				+ "WHERE t1.syskey NOT IN (SELECT parentid from tblNonParenteral)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.executeUpdate();
-		
-		sql = "UPDATE tblNonParenteral SET pId = ?, Doctorid = ?, createddate = ?, modifieddate = ?";
-		String currentDate = ServerUtil.getCurrentDate();
-		stmt = conn.prepareStatement(sql);
-		int i = 1;
-		stmt.setLong(i++, filterRequest.getPatientId());
-		stmt.setLong(i++, filterRequest.getDoctorId());
-		stmt.setString(i++, currentDate);
-		stmt.setString(i++, currentDate);
-		stmt.executeUpdate();
-		
-		sql = "SELECT syskey, n4 FROM tblNonParenteral";
-		stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		while (rs.next()) {
-			generateNurseDoseActivities(rs.getInt("n4"), rs.getLong("syskey"), conn);
+	public ArrayList<NonParenteralData> getAllNonParenterals(FilterRequest filterRequest,Connection conn) throws SQLException {
+		String sql = "SELECT syskey, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, "
+				+ "n1, n2, n3, n4, n5, v.patientid, v.RgsName, v.RefNo "
+				+ "FROM tblNonParenteral AS l LEFT JOIN "
+				+ "(SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+				+ "From viewRegistration) AS v ON l.RgsNo = v.RgsNo";
+		if (filterRequest.isInitial()) {
+			sql += " WHERE l.RgsNo = ?";
 		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		if (filterRequest.isInitial()) {
+			stmt.setInt(1, filterRequest.getRgsno());
+		}
+		ResultSet rs = stmt.executeQuery();
 		
-		sql = "SELECT syskey, t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, n1, n2, n3, n4, n5 FROM tblNonParenteral";
-		stmt = conn.prepareStatement(sql);
-		rs = stmt.executeQuery();
 		ArrayList<NonParenteralData> list = new ArrayList<>();
+		
 		while (rs.next()) {
 			NonParenteralData data = new NonParenteralData();
 			data.setSyskey(rs.getLong("syskey"));
@@ -840,7 +851,91 @@ public class InpatientMedicalRecordDao {
 			data.setLiquidMedication(getCheckboxCode(rs.getInt("n5"), "2"));
 			data.setChronicRenalFailure(getCheckboxCode(rs.getInt("n5"), "3"));
 			data.setPregnant(getCheckboxCode(rs.getInt("n5"), "4"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
 			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivity] WHERE parentId = ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setLong(1, rs.getLong("syskey"));
+			ResultSet rs2 = stmt.executeQuery();
+			ArrayList<NurseDoseActivityData> activityDataList = new ArrayList<NurseDoseActivityData>();
+			while (rs2.next()) {
+				NurseDoseActivityData activityData = new NurseDoseActivityData();
+				activityData.setSyskey(rs2.getLong("syskey"));
+				activityData.setDone(rs2.getBoolean("done"));
+				activityData.setDoneAt(rs2.getString("done_at"));
+				activityData.setNurseId(rs2.getLong("nurse_id"));
+				activityData.setParentId(rs2.getLong("parentId"));
+				activityDataList.add(activityData);
+			}
+			data.setCheckList(activityDataList);
+			list.add(data);
+		}
+		
+		return list;
+	}
+	
+	public ArrayList<NonParenteralData> getNonParenteralsInitial(FilterRequest filterRequest, Connection conn) throws SQLException {
+		if (filterRequest.isInitial()) {
+			String sql = "INSERT INTO tblNonParenteral (syskey, parentid, n1, t2, n2, n3, "
+					+ "t1, RgsNo, n4) "
+					+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, "
+					+ "t1.doseSysKey, "
+					+ "t1.StockID, t1.rgsno, t1.Frequency "
+					+ "from viewNonParenteral AS t1 "
+					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
+					+ "WHERE t1.rgsno = ? AND t1.syskey NOT IN (SELECT parentid from tblNonParenteral)";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, filterRequest.getRgsno());
+			stmt.executeUpdate();
+			
+			sql = "SELECT syskey, n4 FROM tblNonParenteral";
+			stmt = conn.prepareStatement(sql);
+			ResultSet rs = stmt.executeQuery();
+			while (rs.next()) {
+				generateNurseDoseActivities(rs.getInt("n4"), rs.getLong("syskey"), conn);
+			}
+		}
+		
+		return getAllNonParenterals(filterRequest, conn);
+	}
+	
+	public ArrayList<InjectionData> getAllInjections(FilterRequest filterRequest, Connection conn) throws SQLException {
+		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t10, "
+				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo "
+				+ "FROM tblInjection AS l "
+				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, "
+				+ "RgsName, RefNo From viewRegistration) AS v "
+				+ "ON l.RgsNo = v.RgsNo";
+		if (filterRequest.isInitial()) {
+			sql += " WHERE l.RgsNo = ?";
+		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		if (filterRequest.isInitial()) {
+			stmt.setInt(1, filterRequest.getRgsno());
+		}
+		ResultSet rs = stmt.executeQuery();
+		ArrayList<InjectionData> list = new ArrayList<>();
+		
+		while (rs.next()) {
+			InjectionData data = new InjectionData();
+			data.setSyskey(rs.getLong("syskey"));
+			data.setStockId(rs.getString("t1"));
+			data.setMedication(rs.getString("t2"));
+			data.setRemark(rs.getString("t3"));
+			data.setMoConfirmDate(rs.getString("t6"));
+			data.setNurseConfirmDate(rs.getString("t7"));
+			data.setGivenByType(rs.getString("t10"));
+			
+			data.setRouteSyskey(rs.getInt("n1"));
+			data.setDose(rs.getDouble("n2"));
+			data.setDoseTypeSyskey(rs.getInt("n3"));
+			data.setFrequency(rs.getDouble("n4"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
+			
+			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivity2] WHERE parentId = ?";
 			stmt = conn.prepareStatement(sql);
 			stmt.setLong(1, rs.getLong("syskey"));
 			ResultSet rs2 = stmt.executeQuery();
@@ -860,95 +955,28 @@ public class InpatientMedicalRecordDao {
 		return list;
 	}
 	
-	
-	
 	public ArrayList<InjectionData> getInjectionsInitial(FilterRequest filterRequest, Connection conn) throws SQLException {
-		String sql = "INSERT INTO tblInjection (syskey, parentid, n1, t2, n2, n3, t1, RgsNo, n4) "
-				+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, t1.doseSysKey, "
-				+ "t1.StockID, t1.rgsno, t1.Frequency from viewInjMedication AS t1 "
-				+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
-				+ "WHERE t1.syskey NOT IN (SELECT parentid from tblInjection)";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		stmt.executeUpdate();
 		
-//		sql = "UPDATE tblInjection SET pId = ?, Doctorid = ?, createddate = ?, modifieddate = ?";
-//		String currentDate = ServerUtil.getCurrentDate();
-//		stmt = conn.prepareStatement(sql);
-//		int i = 1;
-//		stmt.setLong(i++, filterRequest.getPatientId());
-//		stmt.setLong(i++, filterRequest.getDoctorId());
-//		stmt.setString(i++, currentDate);
-//		stmt.setString(i++, currentDate);
-//		stmt.executeUpdate();
 		
-		sql = "SELECT syskey, n4 FROM tblInjection";
-		stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		while (rs.next()) {
-			generateNurseDoseActivities2(rs.getInt("n4"), rs.getLong("syskey"), conn);
-		}
-		ArrayList<InjectionData> list = new ArrayList<>();
-		if (filterRequest.isAll()) {
-			sql = "SELECT syskey, t1, t2, t3, t6, t7, t10, n1, n2, n3, n4 FROM tblInjection";
-			stmt = conn.prepareStatement(sql);
-			rs = stmt.executeQuery();
+		if (filterRequest.isInitial()) {
+			String sql = "INSERT INTO tblInjection (syskey, parentid, n1, t2, n2, n3, t1, RgsNo, n4) "
+					+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, t1.doseSysKey, "
+					+ "t1.StockID, t1.rgsno, t1.Frequency from viewInjMedication AS t1 "
+					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
+					+ "WHERE t1.rgsno = ? AND t1.syskey NOT IN (SELECT parentid from tblInjection)";
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, filterRequest.getRgsno());
+			stmt.executeUpdate();
 			
-			while (rs.next()) {
-				InjectionData data = new InjectionData();
-				data.setSyskey(rs.getLong("syskey"));
-				data.setStockId(rs.getString("t1"));
-				data.setMedication(rs.getString("t2"));
-				data.setRemark(rs.getString("t3"));
-				data.setMoConfirmDate(rs.getString("t6"));
-				data.setNurseConfirmDate(rs.getString("t7"));
-				data.setGivenByType(rs.getString("t10"));
-				
-				data.setRouteSyskey(rs.getInt("n1"));
-				data.setDose(rs.getDouble("n2"));
-				data.setDoseTypeSyskey(rs.getInt("n3"));
-				data.setFrequency(rs.getDouble("n4"));
-				
-				sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivity2] WHERE parentId = ?";
-				stmt = conn.prepareStatement(sql);
-				stmt.setLong(1, rs.getLong("syskey"));
-				ResultSet rs2 = stmt.executeQuery();
-				ArrayList<NurseDoseActivityData> activityDataList = new ArrayList<NurseDoseActivityData>();
-				while (rs2.next()) {
-					NurseDoseActivityData activityData = new NurseDoseActivityData();
-					activityData.setSyskey(rs2.getLong("syskey"));
-					activityData.setDone(rs2.getBoolean("done"));
-					activityData.setDoneAt(rs2.getString("done_at"));
-					activityData.setNurseId(rs2.getLong("nurse_id"));
-					activityData.setParentId(rs2.getLong("parentId"));
-					activityDataList.add(activityData);
-				}
-				data.setCheckList(activityDataList);
-				list.add(data);
-			}
-		} else {
-			sql = "SELECT t1.Syskey, t2.SysKey, t1.Medication, t1.dose, t1.doseSysKey, "
-					+ "t1.StockID, t1.Frequency from viewInjMedication AS t1 "
-					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route ";
+			sql = "SELECT syskey, n4 FROM tblInjection";
+			stmt.setInt(1, filterRequest.getRgsno());
 			stmt = conn.prepareStatement(sql);
-			rs = stmt.executeQuery();
-			
+			ResultSet rs = stmt.executeQuery();
 			while (rs.next()) {
-				InjectionData data = new InjectionData();
-				data.setSyskey(rs.getLong("Syskey"));
-				data.setMedication(rs.getString("Medication"));
-				data.setDose(rs.getDouble("dose"));
-				data.setDoseTypeSyskey(rs.getInt("doseSysKey"));
-				data.setStockId("StockID");
-				data.setFrequency(rs.getDouble("Frequency"));
-				ArrayList<NurseDoseActivityData> activityDataList = new ArrayList<NurseDoseActivityData>();
-				for (int i = 0; i < data.getFrequency(); i++) {
-					activityDataList.add(new NurseDoseActivityData());
-				}
-				data.setCheckList(activityDataList);
-				list.add(data);
-			}
+				generateNurseDoseActivities2(rs.getInt("n4"), rs.getLong("syskey"), conn);
+			}	
 		}
-		return list;
+		return getAllInjections(filterRequest, conn);
 	}
 	
 	private boolean getCheckboxCode(int code, String c) {

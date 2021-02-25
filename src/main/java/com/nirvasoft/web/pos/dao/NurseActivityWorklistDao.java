@@ -23,7 +23,12 @@ import com.nirvasoft.web.pos.util.ServerUtil;
 @Repository
 public class NurseActivityWorklistDao {
 	public ArrayList<NurseActivity> getAllActivities(Connection conn) throws SQLException {
-		String sql = "SELECT t1.[syskey], t1.Doctorid, t2.name AS doctorName, t1.[t4], t1.[t5], t1.[t6], t1.[n1], t1.[n2], t1.[n3], t1.[n4], t1.[n5], t1.[t7], t1.[t8], t1.[t9], t1.[t10] FROM [dbo].[tblNurseActivity] AS t1 LEFT JOIN [dbo].[viewDoctorSpeciality] AS t2 ON t1.Doctorid = t2.syskey";
+		String sql = "SELECT t1.[syskey], t1.Doctorid, t2.name AS doctorName, "
+				+ "t1.[t4], t1.[t5], t1.[t6], t1.[n1], t1.[n2], t1.[n3], t1.[n4], "
+				+ "t1.[n5], t1.[t7], t1.[t8], t1.[t9], t1.[t10], v.patientid, v.RgsName, v.RefNo "
+				+ "FROM [dbo].[tblNurseActivity] AS t1 "
+				+ "LEFT JOIN [dbo].[viewDoctorSpeciality] AS t2 ON t1.Doctorid = t2.syskey "
+				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo From viewRegistration) AS v ON t1.pId = v.pId AND t1.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<NurseActivity> activities = new ArrayList<>();
@@ -44,6 +49,9 @@ public class NurseActivityWorklistDao {
 			nurseActivity.setSizeUnit(rs.getString("t8"));
 			nurseActivity.setMarkingUnit(rs.getString("t9"));
 			nurseActivity.setExternalLengthUnit(rs.getString("t10"));
+			nurseActivity.setPatientId(rs.getString("patientid"));
+			nurseActivity.setPatientName(rs.getString("RgsName"));
+			nurseActivity.setAdNo(rs.getString("RefNo"));
 			activities.add(nurseActivity);
 		}
 		return activities;
@@ -125,7 +133,10 @@ public class NurseActivityWorklistDao {
 		}
 		
 		sql = "INSERT INTO [dbo].[tblNurseActivity] " +
-	                 "([syskey], [pId], [RgsNo], [userid], [username], [createddate], [modifieddate], [Doctorid], [t4], [t5], [t6], [n1], [n2], [n3], [n4], [n5], [t7], [t8], [t9], [t10]) " +
+	                 "([syskey], [pId], [RgsNo], [userid], [username], "
+	                 + "[createddate], [modifieddate], [Doctorid], "
+	                 + "[t4], [t5], [t6], [n1], [n2], [n3], [n4], "
+	                 + "[n5], [t7], [t8], [t9], [t10]) " +
 		             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		String currentDate = ServerUtil.getCurrentDate();
 		stmt = conn.prepareStatement(sql);

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class BloodData {
+public class BloodData extends PatientInfoData {
 	private long syskey;
 	private String medication;
 	private double dose;
@@ -49,6 +49,9 @@ public class BloodData {
 		map.put("doseTypeSyskey", doseTypeSyskey);
 		map.put("frequency", frequency);
 		map.put("remark", remark);
+		map.put("patientId", patientId);
+		map.put("patientName", patientName);
+		map.put("adNo", adNo);
 		map.put("checkList", checkList
 				.stream()
 				.map((v) -> v.toHashMap())

@@ -11,7 +11,7 @@ public class FilterRequest {
 	private String to;
 	private int patientType;
 	private int rgsStatus;
-
+	
 	public long getPatientId() {
 		return patientId;
 	}

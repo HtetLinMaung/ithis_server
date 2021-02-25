@@ -5,7 +5,7 @@ import java.util.HashMap;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class StatMedicationData {
+public class StatMedicationData extends PatientInfoData {
 	private long syskey;
 	private String route;
 	private String medication;
@@ -57,6 +57,9 @@ public class StatMedicationData {
 		map.put("doseTypeSyskey", doseTypeSyskey);
 		map.put("doseRemarkSyskey", doseRemarkSyskey);
 		map.put("prescriptionRemark", prescriptionRemark);
+		map.put("patientId", patientId);
+		map.put("patientName", patientName);
+		map.put("adNo", adNo);
 		return map;
 	}
 	

@@ -20,9 +20,12 @@ public class GeneralWardDao {
 		String sql ="SELECT gw.syskey, gwd.syskey AS detailSyskey, gw.t1, gw.t2, gw.n1, gw.n2, gw.n3, gw.pId, gw.RgsNo, "
 				+ "gwd.t1 AS dayAt, gwd.t2 AS dayId, gwd.t3 AS dayName, gwd.t5 as nightAt, "
 				+ "gwd.t6 as nightId, gwd.t7 as nightName, gwd.n1 as dayNurse, "
-				+ "gwd.n2 as nightNurse, com.type FROM tblGeneralWard AS gw "
+				+ "gwd.n2 as nightNurse, com.type, v.patientid, v.RgsName, v.RefNo "
+				+ "FROM tblGeneralWard AS gw "
 				+ "LEFT JOIN tblGeneralWardDetail AS gwd ON gw.syskey = gwd.parentid "
-				+ "LEFT JOIN [dbo].[ComTable] AS com ON gw.parentid = com.syskey";
+				+ "LEFT JOIN [dbo].[ComTable] AS com ON gw.parentid = com.syskey "
+				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+				+ "From viewRegistration) AS v ON gw.pId = v.pId AND gw.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<GeneralWardData> list = new ArrayList<>();
@@ -46,6 +49,9 @@ public class GeneralWardDao {
 			data.setNightNurseName(rs.getString("nightName"));
 			data.setType(rs.getInt("type"));
 			data.setDetailSyskey(rs.getLong("detailSyskey"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
 			list.add(data);
 		}
 		return list;
