@@ -10,7 +10,7 @@ public class InstructionData extends PatientInfoData {
 	private String instruction;
 	private String remarks;
 	private long pId;
-	private int RgsNo;
+	private int rgsNo;
 	private String userid;
 	private String username;
 	
@@ -23,7 +23,7 @@ public class InstructionData extends PatientInfoData {
 		map.put("instruction", instruction);
 		map.put("remarks", remarks);
 		map.put("pId", pId);
-		map.put("RgsNo", RgsNo);
+		map.put("rgsNo", rgsNo);
 		map.put("userid", userid);
 		map.put("username", username);
 		map.put("patientId", patientId);
@@ -68,12 +68,7 @@ public class InstructionData extends PatientInfoData {
 	public void setpId(long pId) {
 		this.pId = pId;
 	}
-	public int getRgsNo() {
-		return RgsNo;
-	}
-	public void setRgsNo(int rgsNo) {
-		this.RgsNo = rgsNo;
-	}
+	
 	public String getUserid() {
 		return userid;
 	}
@@ -93,6 +88,14 @@ public class InstructionData extends PatientInfoData {
 
 	public void setSyskey(long syskey) {
 		this.syskey = syskey;
+	}
+
+	public int getRgsNo() {
+		return rgsNo;
+	}
+
+	public void setRgsNo(int rgsNo) {
+		this.rgsNo = rgsNo;
 	}
 	
 	

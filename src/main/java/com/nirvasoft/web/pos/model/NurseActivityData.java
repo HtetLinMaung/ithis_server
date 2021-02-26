@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class NurseActivityData {
 	private int pId;
-	private int RgsNo;
+	private int rgsNo;
 	private String userid;
 	private String username;
 	private long doctorSysKey;
@@ -29,12 +29,7 @@ public class NurseActivityData {
 	public void setpId(int pId) {
 		this.pId = pId;
 	}
-	public int getRgsNo() {
-		return RgsNo;
-	}
-	public void setRgsNo(int rgsNo) {
-		RgsNo = rgsNo;
-	}
+	
 	public String getUserid() {
 		return userid;
 	}
@@ -125,5 +120,11 @@ public class NurseActivityData {
 	}
 	public void setExternalLengthUnit(String externalLengthUnit) {
 		this.externalLengthUnit = externalLengthUnit;
+	}
+	public int getRgsNo() {
+		return rgsNo;
+	}
+	public void setRgsNo(int rgsNo) {
+		this.rgsNo = rgsNo;
 	}
 }
