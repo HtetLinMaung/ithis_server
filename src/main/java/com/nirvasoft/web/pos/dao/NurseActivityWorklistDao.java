@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.stereotype.Repository;
@@ -17,11 +18,13 @@ import com.nirvasoft.web.pos.model.NurseActivityData;
 import com.nirvasoft.web.pos.model.PatientData;
 import com.nirvasoft.web.pos.model.PatientTypeData;
 import com.nirvasoft.web.pos.model.PatientTypeResponse;
+import com.nirvasoft.web.pos.model.ResponseData;
 import com.nirvasoft.web.pos.model.SelectItem;
+import com.nirvasoft.web.pos.util.QueryUtil;
 import com.nirvasoft.web.pos.util.ServerUtil;
 
 @Repository
-public class NurseActivityWorklistDao {
+public class NurseActivityWorklistDao extends QueryUtil {
 	public ArrayList<NurseActivity> getAllActivities(Connection conn) throws SQLException {
 		String sql = "SELECT t1.[syskey], t1.Doctorid, t2.name AS doctorName, "
 				+ "t1.[t4], t1.[t5], t1.[t6], t1.[n1], t1.[n2], t1.[n3], t1.[n4], "
@@ -99,15 +102,16 @@ public class NurseActivityWorklistDao {
 		return selectItems;
 	}
 	
-	public ArrayList<Doctor> getAllDoctors(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, DrID, name, spname, rank, Degree1, Phone, clinicname FROM [dbo].[viewDoctorSpeciality] WHERE syskey <> 0";
+	public ResponseData getAllDoctors(FilterRequest req, Connection conn) throws SQLException {
+		String sql = "SELECT syskey, DrID, name, spname, rank, Degree1, Phone, clinicname "
+				+ "FROM [dbo].[viewDoctorSpeciality] WHERE syskey <> 0";
+				
+		String[] keys = {"DrID", "name", "spname", "rank", "Degree1", "Phone", "clinicname"};
 		
-		PreparedStatement stmt = conn.prepareStatement(sql);	
-		ResultSet rs = stmt.executeQuery();
-		
-		ArrayList<Doctor> doctors = new ArrayList<>();
+		ResultSet rs = executePaginationQuery(sql, keys, req, conn);
+		ArrayList<HashMap<String, Object>> data = new ArrayList<>();
 		while(rs.next()) {
-			doctors.add(
+			data.add(
 					new Doctor(
 							rs.getLong("syskey"),
 							rs.getString("DrID"),
@@ -117,11 +121,38 @@ public class NurseActivityWorklistDao {
 							rs.getString("Degree1"),
 							rs.getString("Phone"),
 							rs.getString("clinicname")
-					)
+					).toHashMap()
 			);
 		}
-		return doctors;
+		return createResponseData(req, data, getTotalOf("[dbo].[viewDoctorSpeciality]", getWhereQuery(), conn));
 	}
+	
+//	public ArrayList<Doctor> getAllDoctors(Connection conn) throws SQLException {
+//		String sql = "SELECT syskey, DrID, name, spname, rank, Degree1, Phone, clinicname "
+//				+ "FROM [dbo].[viewDoctorSpeciality] WHERE syskey <> 0";
+//		
+//		PreparedStatement stmt = conn.prepareStatement(sql);	
+//		ResultSet rs = stmt.executeQuery();
+//		
+//		ArrayList<Doctor> doctors = new ArrayList<>();
+//		while(rs.next()) {
+//			doctors.add(
+//					new Doctor(
+//							rs.getLong("syskey"),
+//							rs.getString("DrID"),
+//							rs.getString("name"),
+//							rs.getString("spname"),
+//							rs.getString("rank"),
+//							rs.getString("Degree1"),
+//							rs.getString("Phone"),
+//							rs.getString("clinicname")
+//					)
+//			);
+//		}
+//		return doctors;
+//	}
+	
+	
 	
 	public long save(NurseActivityData data, Connection conn) throws SQLException {
 		String sql = "select max(syskey) AS SysKey from dbo.[tblNurseActivity]";

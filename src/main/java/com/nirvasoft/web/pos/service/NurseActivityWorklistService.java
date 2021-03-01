@@ -15,6 +15,7 @@ import com.nirvasoft.web.pos.model.NurseActivity;
 import com.nirvasoft.web.pos.model.NurseActivityData;
 import com.nirvasoft.web.pos.model.PatientData;
 import com.nirvasoft.web.pos.model.PatientTypeResponse;
+import com.nirvasoft.web.pos.model.ResponseData;
 import com.nirvasoft.web.pos.model.SelectItem;
 import com.nirvasoft.web.pos.model.UserData;
 import com.nirvasoft.web.pos.util.ConnectionUtil;
@@ -44,14 +45,14 @@ public class NurseActivityWorklistService {
 		return selectItems;
 	}
 	
-	public ArrayList<Doctor> fetchAllDoctors(UserData user) {
-		ArrayList<Doctor> doctors = new ArrayList<>();
+	public ResponseData fetchAllDoctors(FilterRequest req, UserData user) {
+		ResponseData res = new ResponseData();
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			doctors = nurseActivityWorklistDao.getAllDoctors(conn);
+			res = nurseActivityWorklistDao.getAllDoctors(req, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return doctors;
+		return res;
 	}
 	
 	public ArrayList<NurseActivity> fetchActivitiesByPatient(int pId, UserData user) {

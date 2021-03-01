@@ -1,5 +1,7 @@
 package com.nirvasoft.web.pos.model;
 
+import java.util.ArrayList;
+
 public class FilterRequest {
 	private long patientId;
 	private int rgsno;
@@ -11,6 +13,12 @@ public class FilterRequest {
 	private String to;
 	private int patientType;
 	private int rgsStatus;
+	
+	private int page = 0;
+	private int perPage = 0;
+	private String search;
+	private ArrayList<AdvanceSearchData> advSearch = new ArrayList<>();
+	
 	
 	public long getPatientId() {
 		return patientId;
@@ -90,5 +98,37 @@ public class FilterRequest {
 
 	public void setRgsStatus(int rgsStatus) {
 		this.rgsStatus = rgsStatus;
+	}
+
+	public int getPage() {
+		return page;
+	}
+
+	public void setPage(int page) {
+		this.page = page;
+	}
+
+	public int getPerPage() {
+		return perPage;
+	}
+
+	public void setPerPage(int perPage) {
+		this.perPage = perPage;
+	}
+
+	public String getSearch() {
+		return search;
+	}
+
+	public void setSearch(String search) {
+		this.search = search;
+	}
+
+	public ArrayList<AdvanceSearchData> getAdvSearch() {
+		return advSearch;
+	}
+
+	public void setAdvSearch(ArrayList<AdvanceSearchData> advSearch) {
+		this.advSearch = advSearch;
 	}
 }

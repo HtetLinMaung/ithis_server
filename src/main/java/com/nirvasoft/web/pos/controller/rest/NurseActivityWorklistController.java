@@ -43,13 +43,11 @@ public class NurseActivityWorklistController extends IController {
 				}).collect(Collectors.toList());
 	}
 	
-	@GetMapping(value="/doctors")
-	public List<HashMap<String, Object>> getAllDoctors(HttpServletRequest request) {
+	@PostMapping(value="/doctors")
+	public HashMap<String, Object> getAllDoctors(@RequestBody FilterRequest req, HttpServletRequest request) {
 		return nurseActivityWorklistService
-				.fetchAllDoctors(getUser(request))
-				.stream()
-				.map(doctor -> doctor.toHashMap())
-				.collect(Collectors.toList());
+				.fetchAllDoctors(req, getUser(request))
+				.toHashMap();
 	}
 	
 	@GetMapping(value="/activities")
