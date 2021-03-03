@@ -134,4 +134,26 @@ public class QueryUtil {
 	public String getWhereQuery() {
 		return whereQuery;
 	}
+	
+	protected long getNextSyskey(String tableName, Connection conn) throws SQLException {
+		String sql = String.format("SELECT max(syskey) AS syskey FROM %s", tableName);
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		long syskey = 0;
+		while(rs.next()) {
+			syskey = rs.getLong("syskey");
+		}
+		return syskey + 1;
+	}
+	
+	protected int getHsid(Connection conn) throws SQLException {
+		String sql = "select syskey from clinic";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		int hsid = 0;
+		while(rs.next()) {
+			hsid = rs.getInt("syskey");
+		}
+		return hsid;
+	}
 }

@@ -34,14 +34,14 @@ public class InpatientMedicalRecordService {
 		return syskey;
 	}
 	
-	public long saveStatMedication(ArrayList<StatMedicationData> data, UserData user) {
-		long syskey = 0;
+	public ArrayList<Long> saveStatMedication(ArrayList<StatMedicationData> data, UserData user) {
+		ArrayList<Long> savedList = new ArrayList<>();
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			syskey = inpatientMedicalRecordDao.saveStatMedication(data, conn);
+			savedList = inpatientMedicalRecordDao.saveStatMedication(data, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return syskey;
+		return savedList;
 	}
 	
 	public ArrayList<Long> saveBloods(ArrayList<BloodData> data, UserData user) {
@@ -264,9 +264,9 @@ public class InpatientMedicalRecordService {
 		return new ArrayList<HashMap<String, Object>>();
 	}
 	
-	public ArrayList<StatMedicationData> fetchStatMedicationsInitial(UserData user) {
+	public ArrayList<StatMedicationData> fetchStatMedicationsInitial(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			return inpatientMedicalRecordDao.getStatMedicationsInitial(conn);
+			return inpatientMedicalRecordDao.getStatMedicationsInitial(req, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

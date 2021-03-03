@@ -18,10 +18,11 @@ import com.nirvasoft.web.pos.model.NonParenteralData;
 import com.nirvasoft.web.pos.model.NurseActivity;
 import com.nirvasoft.web.pos.model.NurseDoseActivityData;
 import com.nirvasoft.web.pos.model.StatMedicationData;
+import com.nirvasoft.web.pos.util.QueryUtil;
 import com.nirvasoft.web.pos.util.ServerUtil;
 
 @Repository
-public class InpatientMedicalRecordDao {
+public class InpatientMedicalRecordDao extends QueryUtil {
 	public ArrayList<InstructionData> getAllInstructions(Connection conn) throws SQLException {
 		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.pId, "
 				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblInstruction] "
@@ -48,7 +49,7 @@ public class InpatientMedicalRecordDao {
 	}
 	
 	public ArrayList<StatMedicationData> getAllStatMedications(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.t6, l.t7, l.t8, l.t9, "
+		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.t6, l.t7, l.t8, l.t9, l.t10, l.t11, "
 				+ "l.n1, l.n2, l.n3, l.n4, l.n6, l.n7, "
 				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblStatMedication] "
 				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
@@ -68,6 +69,8 @@ public class InpatientMedicalRecordDao {
 			data.setNurseConfirmDate(rs.getString("t7"));
 			data.setPrescriptionRemark(rs.getString("t8"));
 			data.setRemark(rs.getString("t9"));
+			data.setMoConfirmTime(rs.getString("t10"));
+			data.setNurseConfirmTime(rs.getString("t11"));
 			data.setRouteSyskey(rs.getInt("n1"));
 			data.setDose(rs.getDouble("n2"));
 			data.setDoseTypeSyskey(rs.getInt("n3"));
@@ -200,39 +203,20 @@ public class InpatientMedicalRecordDao {
 		stmt.executeUpdate();
 		return syskey+1;
 	}
-	public long saveStatMedication(ArrayList<StatMedicationData> data, Connection conn) throws SQLException {
-		String sql = "select max(syskey) AS SysKey from dbo.[tblStatMedication]";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		long syskey = 0;
-		while(rs.next()) {
-			syskey = rs.getLong("SysKey");
-		}
-		sql = "select syskey from clinic";
-		stmt = conn.prepareStatement(sql);
-		rs = stmt.executeQuery();
-		int hsid = 0;
-		while(rs.next()) {
-			hsid = rs.getInt("syskey");
-		}
+	public ArrayList<Long> saveStatMedication(ArrayList<StatMedicationData> data, Connection conn) throws SQLException {
+		long nextSyskey = getNextSyskey("dbo.[tblStatMedication]", conn);
+		int hsid = getHsid(conn);
 		
-		sql = "DELETE FROM dbo.tblStatMedication WHERE parentid = ?";
-		for (StatMedicationData stat : data) {
-			stmt = conn.prepareStatement(sql);
-			stmt.setLong(1, stat.getParentId());
-			stmt.executeUpdate();
-		}
-		
-		sql = "INSERT INTO [dbo].[tblStatMedication] " +
+		String sql = "INSERT INTO [dbo].[tblStatMedication] " +
                 "([syskey], parentid, Doctorid, RefNo, [pId], [RgsNo], hsid, "
                 + "[userid], [username], [createddate], [modifieddate], "
-                + "t1, t2, t3, t4, t5, t6, t7, t8, t9, n1, n2, n3, n4, n6, n7) " +
+                + "t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, n1, n2, n3, n4, n6, n7) " +
 	             "VALUES ";
 		
 		for (int i = 0; i < data.size(); i++) {
 			sql += "(?, ?, ?, ?,"
 					+ "?, ?, ?, ?, ?, ?, ?,"
-					+ "?, ?, ?, ?, ?,"
+					+ "?, ?, ?, ?, ?, ?, ?,"
 					+ "?, ?, ?, ?, ?,"
 					+ "?, ?, ?, ?, ?)";
 			if (i != data.size() - 1) {
@@ -241,13 +225,14 @@ public class InpatientMedicalRecordDao {
 		}
 		
 		String currentDate = ServerUtil.getCurrentDate();
-		stmt = conn.prepareStatement(sql);
+		PreparedStatement stmt = conn.prepareStatement(sql);
 		int i = 1;
+		ArrayList<Long> updatedList = new ArrayList<>();
 		for (StatMedicationData stat : data) {
-			stmt.setLong(i++, ++syskey);
+			stmt.setLong(i++, nextSyskey);
 			stmt.setLong(i++, stat.getParentId());
 			stmt.setLong(i++, stat.getDoctorId());
-			stmt.setString(i++, syskey + "");			
+			stmt.setString(i++, stat.getAdNo());			
 			stmt.setLong(i++, stat.getpId());
 			stmt.setInt(i++, stat.getRgsNo());
 			stmt.setInt(i++, hsid);
@@ -264,15 +249,18 @@ public class InpatientMedicalRecordDao {
 			stmt.setString(i++, stat.getNurseConfirmDate());
 			stmt.setString(i++, stat.getPrescriptionRemark());
 			stmt.setString(i++, stat.getRemark());
+			stmt.setString(i++, stat.getMoConfirmTime());	
+			stmt.setString(i++, stat.getNurseConfirmTime());
 			stmt.setInt(i++, stat.getRouteSyskey());
 			stmt.setDouble(i++, stat.getDose());
 			stmt.setInt(i++, stat.getDoseTypeSyskey());
 			stmt.setInt(i++, stat.getDoseRemarkSyskey());
 			stmt.setLong(i++, stat.isDoctor() ? 1: 0);
 			stmt.setLong(i++, !stat.isDoctor() ? 1: 0);
+			updatedList.add(nextSyskey++);
 		}
 		stmt.executeUpdate();
-		return syskey;
+		return updatedList;
 	}
 	
 	public ArrayList<Long> saveNonParenteral(ArrayList<NonParenteralData> data, Connection conn) throws SQLException {
@@ -417,27 +405,9 @@ public class InpatientMedicalRecordDao {
 	}
 	
 	
-	private int getHsid(Connection conn) throws SQLException {
-		String sql = "select syskey from clinic";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		int hsid = 0;
-		while(rs.next()) {
-			hsid = rs.getInt("syskey");
-		}
-		return hsid;
-	}
 	
-	private long getNextSyskey(String tableName, Connection conn) throws SQLException {
-		String sql = String.format("SELECT max(syskey) AS syskey FROM %s", tableName);
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		long syskey = 0;
-		while(rs.next()) {
-			syskey = rs.getLong("syskey");
-		}
-		return syskey + 1;
-	}
+	
+	
 	
 	private int computeCheckboxCodes(NonParenteralData parenteral) {
 		String code = "";
@@ -460,7 +430,7 @@ public class InpatientMedicalRecordDao {
 	}
 	
 	public long updateStatMedication(long syskey, StatMedicationData stat, Connection conn) throws SQLException {
-		String sql = "UPDATE dbo.tblStatMedication SET [userid] = ?, [username] = ?, [modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, t7 = ?, t8 = ?, t9 = ?, n1 = ?, n2 = ?, n3 = ?, n4 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
+		String sql = "UPDATE dbo.tblStatMedication SET [userid] = ?, [username] = ?, [modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, t7 = ?, t8 = ?, t9 = ?, t10 = ?, t11 = ?, n1 = ?, n2 = ?, n3 = ?, n4 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		String currentDate = ServerUtil.getCurrentDate();
 		int i = 1;
@@ -477,6 +447,8 @@ public class InpatientMedicalRecordDao {
 		stmt.setString(i++, stat.getNurseConfirmDate());
 		stmt.setString(i++, stat.getPrescriptionRemark());
 		stmt.setString(i++, stat.getRemark());
+		stmt.setString(i++, stat.getMoConfirmTime());
+		stmt.setString(i++, stat.getNurseConfirmTime());
 		stmt.setInt(i++, stat.getRouteSyskey());
 		stmt.setDouble(i++, stat.getDose());
 		stmt.setInt(i++, stat.getDoseTypeSyskey());
@@ -793,9 +765,12 @@ public class InpatientMedicalRecordDao {
 		return mapList;
 	}
 	
-	public ArrayList<StatMedicationData> getStatMedicationsInitial(Connection conn) throws SQLException {
-		String sql = "SELECT syskey, route, Medication, dose, engdesc, remark, StockID FROM viewStatMedication";
+	public ArrayList<StatMedicationData> getStatMedicationsInitial(FilterRequest req, Connection conn) throws SQLException {
+		String sql = "SELECT syskey, route, Medication, dose, "
+				+ "engdesc, remark, StockID FROM viewStatMedication "
+				+ "WHERE rgsno = ? AND syskey NOT IN (SELECT parentid from tblStatMedication)";
 		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setInt(1, req.getRgsno());
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<StatMedicationData> list = new ArrayList<>();
 		while (rs.next()) {

@@ -13,7 +13,7 @@ public class StatMedicationData extends PatientInfoData {
 	private String engdesc;
 	private String remark;
 	private int pId;
-	private int RgsNo;
+	private int rgsNo;
 	private String userid;
 	private String username;
 	private long parentId;
@@ -26,6 +26,8 @@ public class StatMedicationData extends PatientInfoData {
 	private boolean isDoctor;
 	private String nurseConfirmDate;
 	private String moConfirmDate;
+	private String nurseConfirmTime;
+	private String moConfirmTime;
 	private int routeSyskey;
 	private int doseTypeSyskey;
 	private int doseRemarkSyskey;	
@@ -40,7 +42,7 @@ public class StatMedicationData extends PatientInfoData {
 		map.put("engdesc", engdesc);
 		map.put("remark", remark);
 		map.put("pId", pId);
-		map.put("RgsNo", RgsNo);
+		map.put("rgsNo", rgsNo);
 		map.put("userid", userid);
 		map.put("username", username);
 		map.put("parentId", parentId);
@@ -60,6 +62,8 @@ public class StatMedicationData extends PatientInfoData {
 		map.put("patientId", patientId);
 		map.put("patientName", patientName);
 		map.put("adNo", adNo);
+		map.put("nurseConfirmTime", nurseConfirmTime);
+		map.put("moConfirmTime", moConfirmTime);
 		return map;
 	}
 	
@@ -110,13 +114,7 @@ public class StatMedicationData extends PatientInfoData {
 		this.syskey = syskey;
 	}
 
-	public int getRgsNo() {
-		return RgsNo;
-	}
-
-	public void setRgsNo(int rgsNo) {
-		RgsNo = rgsNo;
-	}
+	
 
 	public String getUserid() {
 		return userid;
@@ -244,5 +242,29 @@ public class StatMedicationData extends PatientInfoData {
 
 	public void setPrescriptionRemark(String prescriptionRemark) {
 		this.prescriptionRemark = prescriptionRemark;
+	}
+
+	public String getNurseConfirmTime() {
+		return nurseConfirmTime;
+	}
+
+	public void setNurseConfirmTime(String nurseConfirmTime) {
+		this.nurseConfirmTime = nurseConfirmTime;
+	}
+
+	public String getMoConfirmTime() {
+		return moConfirmTime;
+	}
+
+	public void setMoConfirmTime(String moConfirmTime) {
+		this.moConfirmTime = moConfirmTime;
+	}
+
+	public int getRgsNo() {
+		return rgsNo;
+	}
+
+	public void setRgsNo(int rgsNo) {
+		this.rgsNo = rgsNo;
 	}
 }

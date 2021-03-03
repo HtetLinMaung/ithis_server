@@ -46,11 +46,11 @@ public class InpatientMedicalRecordController extends IController {
 	}
 	
 	@PostMapping(value = "/save-stat-medication")
-	public HashMap<String, String> saveStatMedication(@RequestBody StatMedicationRequest data, HttpServletRequest request) {
-		HashMap<String, String> map = new HashMap<>();
-		long syskey = inpatientMedicalRecordService.saveStatMedication(data.getStatMedications(), getUser(request));
+	public HashMap<String, Object> saveStatMedication(@RequestBody StatMedicationRequest data, HttpServletRequest request) {
+		HashMap<String, Object> map = new HashMap<>();
+		ArrayList<Long> updatedList = inpatientMedicalRecordService.saveStatMedication(data.getStatMedications(), getUser(request));
 		map.put("message", "Stat medication save successful!");
-		map.put("syskey", syskey+"");
+		map.put("updatedList", updatedList);
 		return map;
 	}
 	
@@ -135,10 +135,11 @@ public class InpatientMedicalRecordController extends IController {
 				.fetchDrugTasks(getUser(request));
 	}
 	
-	@GetMapping(value="/stat-medications-initial")
-	public List<HashMap<String, Object>> getAllStatMedicationsInitial(HttpServletRequest request) {
+	@PostMapping(value="/stat-medications-initial")
+	public List<HashMap<String, Object>> getAllStatMedicationsInitial(@RequestBody FilterRequest filterRequest, 
+			HttpServletRequest request) {
 		return inpatientMedicalRecordService
-				.fetchStatMedicationsInitial(getUser(request))
+				.fetchStatMedicationsInitial(filterRequest, getUser(request))
 				.stream()
 				.map((data) -> data.toHashMap())
 				.collect(Collectors.toList());
