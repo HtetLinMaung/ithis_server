@@ -312,7 +312,7 @@ public class NurseActivityWorklistDao extends QueryUtil {
 		while(rs.next()) {
 			PatientTypeData data = new PatientTypeData();
 			data.setText(rs.getString("t2"));
-			data.setValue(rs.getInt("syskey"));
+			data.setValue(rs.getLong("syskey"));
 			list.add(data);
 		}
 		

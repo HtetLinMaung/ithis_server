@@ -3,7 +3,7 @@ package com.nirvasoft.web.pos.model;
 import java.util.HashMap;
 
 public class PatientTypeData {
-	private int value;
+	private long value;
 	private String text;
 	
 	public HashMap<String, Object> toHashMap() {
@@ -13,10 +13,10 @@ public class PatientTypeData {
 		return map;
 	}
 	
-	public int getValue() {
+	public long getValue() {
 		return value;
 	}
-	public void setValue(int value) {
+	public void setValue(long value) {
 		this.value = value;
 	}
 	public String getText() {
