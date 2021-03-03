@@ -25,10 +25,15 @@ public class QueryUtil {
 		return total;
 	}
 	
-	protected int getTotalOf(String tableName, String whereQuery, Connection conn) throws SQLException {
+	protected int getTotalOf(String tableName, String whereQuery, Object[] values, Connection conn) throws SQLException {
 		int total = 0;
 		String sql = "select count(*) as total from " + tableName + " " + whereQuery;
 		PreparedStatement stmt = conn.prepareStatement(sql);	
+		if (!whereQuery.isEmpty()) {
+			for (int i = 0; i < values.length ; i++) {
+				stmt.setObject(i + 1, values[i]);
+			}
+		}
 		ResultSet rs = stmt.executeQuery();
 		while (rs.next()) {
 			total = rs.getInt("total");
@@ -50,10 +55,10 @@ public class QueryUtil {
 		return res;
 	}
 	
-	protected ResultSet executePaginationQuery(String initialSql, 
-			String[] keys, FilterRequest req, Connection conn) throws SQLException {
+	protected PreparedStatement preparePaginationQuery(String initialSql, 
+			String[] keys, FilterRequest req, String orderByKey, Connection conn) throws SQLException {
 		String sql = initialSql;
-		if (req.getSearch() != null || !req.getSearch().isEmpty()) {
+		if (req.getSearch() != null && !req.getSearch().isEmpty()) {
 			String text = req.getSearch();	
 			if (sql.contains("WHERE")) {
 				sql += " AND (";
@@ -69,7 +74,6 @@ public class QueryUtil {
 				}
 			}
 			sql += ") ";
-			this.whereQuery = "WHERE " + sql.split("WHERE")[1];
 		} else {
 			if (req.getAdvSearch().size() > 0) {
 				if (sql.contains("WHERE")) {
@@ -85,22 +89,30 @@ public class QueryUtil {
 					}
 				}
 				sql += ") ";
-				this.whereQuery = "WHERE " + sql.split("WHERE")[1];
+				
 			}	
 		}
 		
+		if (sql.split("WHERE").length == 2) {
+			this.whereQuery = "WHERE " + sql.split("WHERE")[1];
+		}
 		
-		
-		sql += "order by syskey OFFSET ? ROW FETCH NEXT ? ROWS ONLY ";
-		
-
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		int i = 1;
-		
-		// pagination
+		sql += String.format(" order by %s OFFSET ? ROW FETCH NEXT ? ROWS ONLY ", orderByKey);
+		return conn.prepareStatement(sql);
+	}
+	
+	protected void setPaginationParams(int j, FilterRequest req, PreparedStatement stmt) throws SQLException {
+		int i = j;
 		int offset = (req.getPage() - 1) * req.getPerPage();
 		stmt.setInt(i++, offset);
 		stmt.setInt(i++, req.getPerPage());
+	}
+	
+	protected ResultSet executePaginationQuery(String sql, 
+			String[] keys, FilterRequest req, Connection conn) throws SQLException {
+		PreparedStatement stmt = preparePaginationQuery(sql, keys, req, "syskey", conn);
+		
+		setPaginationParams(1, req, stmt);
 		
 		ResultSet rs = stmt.executeQuery();
 		return rs;

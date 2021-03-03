@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nirvasoft.web.pos.service.NurseActivityWorklistService;
 import com.nirvasoft.web.pos.util.ReportUtil;
 import com.nirvasoft.web.pos.model.DeleteData;
+import com.nirvasoft.web.pos.model.Doctor;
 import com.nirvasoft.web.pos.model.FilterRequest;
 import com.nirvasoft.web.pos.model.NurseActivityData;
 import com.nirvasoft.web.pos.model.SelectItem;
@@ -49,6 +50,19 @@ public class NurseActivityWorklistController extends IController {
 				.fetchAllDoctors(req, getUser(request))
 				.toHashMap();
 	}
+	
+	@GetMapping(value="/doctors/{syskey}")
+	public HashMap<String, Object> getDoctorById(@PathVariable("syskey") Long syskey, HttpServletRequest request) {
+		HashMap<String, Object> map = new HashMap<>();
+		 Doctor doctor = nurseActivityWorklistService
+				.fetchDoctorById(syskey, getUser(request))
+				.orElse(null);
+		 if (doctor != null) {
+			 map = doctor.toHashMap();
+		 }
+		 return map;
+	}
+				
 	
 	@GetMapping(value="/activities")
 	public List<HashMap<String, Object>> getAllActivities(HttpServletRequest request) {
@@ -103,12 +117,10 @@ public class NurseActivityWorklistController extends IController {
 	}
 	
 	@PostMapping(value = "/patients")
-	public List<HashMap<String, Object>> getAllPatients(@RequestBody FilterRequest filteredRequest, HttpServletRequest request) {
+	public HashMap<String, Object> getAllPatients(@RequestBody FilterRequest filteredRequest, HttpServletRequest request) {
 		return nurseActivityWorklistService
 				.fetchAllPatients(filteredRequest, getUser(request))
-				.stream()
-				.map(info -> info.toHashMap())
-				.collect(Collectors.toList());
+				.toHashMap();
 	}
 	
 	@GetMapping(value = "/patient-types")

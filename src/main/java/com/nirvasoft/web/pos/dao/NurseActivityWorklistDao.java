@@ -124,33 +124,35 @@ public class NurseActivityWorklistDao extends QueryUtil {
 					).toHashMap()
 			);
 		}
-		return createResponseData(req, data, getTotalOf("[dbo].[viewDoctorSpeciality]", getWhereQuery(), conn));
+		return createResponseData(req, data, getTotalOf("[dbo].[viewDoctorSpeciality]", getWhereQuery(), new Object[] {}, conn));
 	}
 	
-//	public ArrayList<Doctor> getAllDoctors(Connection conn) throws SQLException {
-//		String sql = "SELECT syskey, DrID, name, spname, rank, Degree1, Phone, clinicname "
-//				+ "FROM [dbo].[viewDoctorSpeciality] WHERE syskey <> 0";
-//		
-//		PreparedStatement stmt = conn.prepareStatement(sql);	
-//		ResultSet rs = stmt.executeQuery();
-//		
-//		ArrayList<Doctor> doctors = new ArrayList<>();
-//		while(rs.next()) {
-//			doctors.add(
-//					new Doctor(
-//							rs.getLong("syskey"),
-//							rs.getString("DrID"),
-//							rs.getString("name"),
-//							rs.getString("spname"),
-//							rs.getString("rank"),
-//							rs.getString("Degree1"),
-//							rs.getString("Phone"),
-//							rs.getString("clinicname")
-//					)
-//			);
-//		}
-//		return doctors;
-//	}
+	public Doctor getDoctorById(long syskey, Connection conn) throws SQLException {
+		String sql = "SELECT syskey, DrID, name, spname, rank, Degree1, Phone, clinicname "
+				+ "FROM [dbo].[viewDoctorSpeciality] WHERE syskey = ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, syskey);
+		ResultSet rs = stmt.executeQuery();
+		
+		Doctor doctor = new Doctor(0, "", "", "", "", "", "", "");	
+		while (rs.next()) {
+			doctor = new Doctor(
+					rs.getLong("syskey"),
+					rs.getString("DrID"),
+					rs.getString("name"),
+					rs.getString("spname"),
+					rs.getString("rank"),
+					rs.getString("Degree1"),
+					rs.getString("Phone"),
+					rs.getString("clinicname")
+			);
+		}
+		
+		return doctor;
+	}
+	
+
 	
 	
 	
@@ -263,16 +265,21 @@ public class NurseActivityWorklistDao extends QueryUtil {
 		return headerList;
 	}
 	
-	public List<PatientData> getAllPatients(FilterRequest req, Connection conn) throws SQLException {
+	public ResponseData getAllPatients(FilterRequest req, Connection conn) throws SQLException {
 		String sql = "select pId, RgsNo, RefNo, patientid, RgsName, FatherName, "
 				+ "Address, MCardNo, docfname, speicality, roomNo, ArivDate, DptDate, PtType, RgsStatus "
 				+ "from viewRegistration WHERE PtType = ? AND RgsStatus = ?";
-		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		String[] keys = { "RefNo", "pId", "RgsName", "FatherName", "Address", 
+				"MCardNo", "docfname", "speicality", "roomNo", "ArivDate", "DptDate" };
+		PreparedStatement stmt = preparePaginationQuery(sql, keys, req, "pId", conn);
 		int i = 1;
 		stmt.setInt(i++, req.getPatientType());
 		stmt.setInt(i++, req.getRgsStatus());
+		setPaginationParams(i, req, stmt);
 		ResultSet rs = stmt.executeQuery();
-		ArrayList<PatientData> list = new ArrayList<>();
+		
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		while(rs.next()) {
 			PatientData data = new PatientData();
 			data.setpId(rs.getLong("pId"));
@@ -290,9 +297,10 @@ public class NurseActivityWorklistDao extends QueryUtil {
 			data.setDptDate(rs.getString("DptDate"));
 			data.setPatientType(rs.getInt("PtType"));
 			data.setRgsStatus(rs.getInt("RgsStatus"));
-			list.add(data);
+			list.add(data.toHashMap());
 		}
-		return list;
+		return createResponseData(req, list, getTotalOf("viewRegistration", 
+				getWhereQuery(), new Object[] {req.getPatientType(), req.getRgsStatus()}, conn));
 	}
 	
 	public PatientTypeResponse getAllPatientTypes(Connection conn) throws SQLException {

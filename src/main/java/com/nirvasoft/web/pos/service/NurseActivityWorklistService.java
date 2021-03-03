@@ -3,6 +3,7 @@ package com.nirvasoft.web.pos.service;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,6 +76,15 @@ public class NurseActivityWorklistService {
 		return status;
 	}
 	
+	public Optional<Doctor> fetchDoctorById(long syskey, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return Optional.ofNullable(nurseActivityWorklistDao.getDoctorById(syskey, conn));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	public long update(long syskey, NurseActivityData data, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			nurseActivityWorklistDao.update(syskey, data, conn);
@@ -103,13 +113,14 @@ public class NurseActivityWorklistService {
 		return null;
 	}
 	
-	public List<PatientData> fetchAllPatients(FilterRequest req, UserData user) {
+	public ResponseData fetchAllPatients(FilterRequest req, UserData user) {
+		ResponseData res = new ResponseData();
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			return nurseActivityWorklistDao.getAllPatients(req, conn);
+			res = nurseActivityWorklistDao.getAllPatients(req, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return res;
 	}
 	
 	public PatientTypeResponse fetchAllPatientTypes(UserData user) {
