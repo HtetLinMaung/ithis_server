@@ -17,6 +17,7 @@ import com.nirvasoft.web.pos.model.InstructionData;
 import com.nirvasoft.web.pos.model.NonParenteralData;
 import com.nirvasoft.web.pos.model.NurseActivity;
 import com.nirvasoft.web.pos.model.NurseDoseActivityData;
+import com.nirvasoft.web.pos.model.ResponseData;
 import com.nirvasoft.web.pos.model.StatMedicationData;
 import com.nirvasoft.web.pos.util.QueryUtil;
 import com.nirvasoft.web.pos.util.ServerUtil;
@@ -48,15 +49,53 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		return instructions;
 	}
 	
-	public ArrayList<StatMedicationData> getAllStatMedications(Connection conn) throws SQLException {
+	public StatMedicationData getStatMedicationById(long syskey, Connection conn) throws SQLException {
+		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, "
+				+ "l.t6, l.t7, l.t8, l.t9, l.t10, l.t11, "
+				+ "l.n1, l.n2, l.n3, l.n4, l.n6, l.n7, "
+				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblStatMedication] "
+				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo "
+				+ "WHERE syskey = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, syskey);
+		ResultSet rs = stmt.executeQuery();
+		
+		StatMedicationData data = new StatMedicationData();
+		while (rs.next()) {
+			data.setSyskey(rs.getLong("syskey"));
+			data.setStockId(rs.getString("t1"));
+			data.setStockDescription(rs.getString("t2"));
+			data.setTimeAdmin(rs.getString("t3"));
+			data.setGivenBy(rs.getString("t4"));
+			data.setDrRemark(rs.getString("t5"));
+			data.setMoConfirmDate(rs.getString("t6"));
+			data.setNurseConfirmDate(rs.getString("t7"));
+			data.setPrescriptionRemark(rs.getString("t8"));
+			data.setRemark(rs.getString("t9"));
+			data.setMoConfirmTime(rs.getString("t10"));
+			data.setNurseConfirmTime(rs.getString("t11"));
+			data.setRouteSyskey(rs.getInt("n1"));
+			data.setDose(rs.getDouble("n2"));
+			data.setDoseTypeSyskey(rs.getInt("n3"));
+			data.setDoseRemarkSyskey(rs.getInt("n4"));
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
+		}
+		return data;
+	}
+	
+	public ResponseData getAllStatMedications(FilterRequest req, Connection conn) throws SQLException {
 		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.t6, l.t7, l.t8, l.t9, l.t10, l.t11, "
 				+ "l.n1, l.n2, l.n3, l.n4, l.n6, l.n7, "
 				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblStatMedication] "
 				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
 				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		ArrayList<StatMedicationData> statMedications = new ArrayList<>();
+		String[] keys = {"v.patientid", "v.RgsName", "v.RefNo", "l.n1", "l.t2", 
+				"l.n2", "l.t8", "l.t3", "l.t4", "l.t5", "l.t9"};
+		ResultSet rs = executePaginationQuery(sql, keys, req, conn);
+		ArrayList<HashMap<String, Object>> statMedications = new ArrayList<>();
 		while (rs.next()) {
 			StatMedicationData data = new StatMedicationData();
 			data.setSyskey(rs.getLong("syskey"));
@@ -78,9 +117,13 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
-			statMedications.add(data);
+			statMedications.add(data.toHashMap());
 		}
-		return statMedications;
+		return createResponseData(req, statMedications, 
+				getTotalOf("[dbo].[tblStatMedication] AS l LEFT JOIN "
+						+ "(SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+						+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo", 
+				getWhereQuery(), new Object[] {}, conn));
 	}
 	
 

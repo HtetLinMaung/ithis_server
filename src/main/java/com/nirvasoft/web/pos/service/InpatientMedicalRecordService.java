@@ -14,6 +14,7 @@ import com.nirvasoft.web.pos.model.FilterRequest;
 import com.nirvasoft.web.pos.model.InjectionData;
 import com.nirvasoft.web.pos.model.InstructionData;
 import com.nirvasoft.web.pos.model.NonParenteralData;
+import com.nirvasoft.web.pos.model.ResponseData;
 import com.nirvasoft.web.pos.model.StatMedicationData;
 import com.nirvasoft.web.pos.model.StatMedicationRequest;
 import com.nirvasoft.web.pos.model.UserData;
@@ -132,6 +133,15 @@ public class InpatientMedicalRecordService {
 			e.printStackTrace();
 		}
 		return status;
+	}
+	
+	public StatMedicationData fetchStatMedicationById(long syskey, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return inpatientMedicalRecordDao.getStatMedicationById(syskey, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new StatMedicationData();
 	}
 	
 	public int deleteDiet(long syskey, UserData user) {
@@ -273,13 +283,13 @@ public class InpatientMedicalRecordService {
 		return new ArrayList<StatMedicationData>();
 	}
 	
-	public ArrayList<StatMedicationData> fetchStatMedications(UserData user) {
+	public ResponseData fetchStatMedications(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			return inpatientMedicalRecordDao.getAllStatMedications(conn);
+			return inpatientMedicalRecordDao.getAllStatMedications(req, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ArrayList<StatMedicationData>();
+		return new ResponseData();
 	}
 	
 	public ArrayList<NonParenteralData> fetchNonParenteralsInitial(FilterRequest filterRequest, UserData user) {

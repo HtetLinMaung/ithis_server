@@ -145,13 +145,12 @@ public class InpatientMedicalRecordController extends IController {
 				.collect(Collectors.toList());
 	}
 	
-	@GetMapping(value="/stat-medications")
-	public List<HashMap<String, Object>> getAllStatMedications(HttpServletRequest request) {
+	@PostMapping(value="/stat-medications")
+	public HashMap<String, Object> getAllStatMedications(@RequestBody FilterRequest filterRequest, 
+			HttpServletRequest request) {
 		return inpatientMedicalRecordService
-				.fetchStatMedications(getUser(request))
-				.stream()
-				.map((data) -> data.toHashMap())
-				.collect(Collectors.toList());
+				.fetchStatMedications(filterRequest, getUser(request))
+				.toHashMap();
 	}
 	
 	@PostMapping(value="/injections-initial")
@@ -263,6 +262,14 @@ public class InpatientMedicalRecordController extends IController {
 		inpatientMedicalRecordService.deleteBlood(syskey, getUser(request));
 		map.put("message", "Blood deleted successful!");
 		return map;
+	}
+	
+	@GetMapping(value = "/stat-medications/{syskey}")
+	public HashMap<String, Object> getStatMedicationById(@PathVariable("syskey") Long syskey, 
+			HttpServletRequest request) {
+		return inpatientMedicalRecordService
+				.fetchStatMedicationById(syskey, getUser(request))
+				.toHashMap();
 	}
 	
 	@PostMapping(value = "/delete-diet/{syskey}")

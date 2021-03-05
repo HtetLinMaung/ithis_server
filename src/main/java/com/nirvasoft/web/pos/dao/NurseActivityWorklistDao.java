@@ -266,7 +266,7 @@ public class NurseActivityWorklistDao extends QueryUtil {
 	}
 	
 	public ResponseData getAllPatients(FilterRequest req, Connection conn) throws SQLException {
-		String sql = "select pId, RgsNo, RefNo, patientid, RgsName, FatherName, "
+		String sql = "select pId, patientid, RgsNo, RefNo, patientid, RgsName, FatherName, "
 				+ "Address, MCardNo, docfname, speicality, roomNo, ArivDate, DptDate, PtType, RgsStatus "
 				+ "from viewRegistration WHERE PtType = ? AND RgsStatus = ?";
 		
@@ -285,7 +285,7 @@ public class NurseActivityWorklistDao extends QueryUtil {
 			data.setpId(rs.getLong("pId"));
 			data.setRgsNo(rs.getLong("RgsNo"));
 			data.setAdNo(rs.getString("RefNo"));
-			data.setId(rs.getString("pId"));
+			data.setId(rs.getString("patientid"));
 			data.setName(rs.getString("RgsName"));
 			data.setFatherName(rs.getString("FatherName"));
 			data.setAddress(rs.getString("Address"));

@@ -58,6 +58,7 @@ public class QueryUtil {
 	protected PreparedStatement preparePaginationQuery(String initialSql, 
 			String[] keys, FilterRequest req, String orderByKey, Connection conn) throws SQLException {
 		String sql = initialSql;
+		this.whereQuery = "";
 		if (req.getSearch() != null && !req.getSearch().isEmpty()) {
 			String text = req.getSearch();	
 			if (sql.contains("WHERE")) {
