@@ -1,0 +1,48 @@
+package com.nirvasoft.web.pos.service;
+
+import java.sql.Connection;
+import java.util.ArrayList;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.nirvasoft.web.pos.dao.PatientDao;
+import com.nirvasoft.web.pos.model.FilterRequest;
+import com.nirvasoft.web.pos.model.PatientTypeResponse;
+import com.nirvasoft.web.pos.model.ResponseData;
+import com.nirvasoft.web.pos.model.UserData;
+import com.nirvasoft.web.pos.util.ConnectionUtil;
+
+@Service
+public class PatientService {
+	@Autowired
+	PatientDao patientDao;
+	
+	public ArrayList<String> fetchAdNosByPatient(long pId, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return patientDao.getAdNosByPatient(pId, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<String>();
+	}
+	
+	public ResponseData fetchAllPatients(FilterRequest req, UserData user) {
+		ResponseData res = new ResponseData();
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			res = patientDao.getAllPatients(req, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+	
+	public PatientTypeResponse fetchAllPatientTypes(UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return patientDao.getAllPatientTypes(conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+}

@@ -104,31 +104,5 @@ public class NurseActivityWorklistService {
 		return syskey;
 	}
 	
-	public List<HeaderData> fetchPatientInfoById(Long patientId, UserData user) {
-		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			return nurseActivityWorklistDao.getPatientInfoById(patientId, conn);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 	
-	public ResponseData fetchAllPatients(FilterRequest req, UserData user) {
-		ResponseData res = new ResponseData();
-		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			res = nurseActivityWorklistDao.getAllPatients(req, conn);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return res;
-	}
-	
-	public PatientTypeResponse fetchAllPatientTypes(UserData user) {
-		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			return nurseActivityWorklistDao.getAllPatientTypes(conn);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 }

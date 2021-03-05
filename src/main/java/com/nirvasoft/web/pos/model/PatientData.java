@@ -18,6 +18,11 @@ public class PatientData {
 	private String dptDate;
 	private int patientType;
 	private int rgsStatus;
+	private int age;
+	private String allergy;
+	private String ward;
+	private String drID;
+	private String bed;
 	
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<>();
@@ -36,6 +41,11 @@ public class PatientData {
 		map.put("dptDate", dptDate);
 		map.put("patientType", patientType);
 		map.put("rgsStatus", rgsStatus);
+		map.put("age", age);
+		map.put("allergy", allergy);
+		map.put("ward", ward);
+		map.put("drID", drID);
+		map.put("bed", bed);
 		return map;
 	}
 	
@@ -136,5 +146,45 @@ public class PatientData {
 
 	public void setRgsStatus(int rgsStatus) {
 		this.rgsStatus = rgsStatus;
+	}
+
+	public int getAge() {
+		return age;
+	}
+
+	public void setAge(int age) {
+		this.age = age;
+	}
+
+	public String getAllergy() {
+		return allergy;
+	}
+
+	public void setAllergy(String allergy) {
+		this.allergy = allergy;
+	}
+
+	public String getWard() {
+		return ward;
+	}
+
+	public void setWard(String ward) {
+		this.ward = ward;
+	}
+
+	public String getDrID() {
+		return drID;
+	}
+
+	public void setDrID(String drID) {
+		this.drID = drID;
+	}
+
+	public String getBed() {
+		return bed;
+	}
+
+	public void setBed(String bed) {
+		this.bed = bed;
 	}
 }

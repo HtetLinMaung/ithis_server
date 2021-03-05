@@ -106,25 +106,4 @@ public class NurseActivityWorklistController extends IController {
 		map.put("message", "Nurse Activity deleted successful!");
 		return map;
 	}
-	
-	@GetMapping(value = "/patient-info/{patientId}")
-	public List<HashMap<String, Object>> getDummyPatient(@PathVariable("patientId") Long patientId, HttpServletRequest request) {
-		return nurseActivityWorklistService
-				.fetchPatientInfoById(patientId, getUser(request))
-				.stream()
-				.map(info -> info.toHashMap())
-				.collect(Collectors.toList());
-	}
-	
-	@PostMapping(value = "/patients")
-	public HashMap<String, Object> getAllPatients(@RequestBody FilterRequest filteredRequest, HttpServletRequest request) {
-		return nurseActivityWorklistService
-				.fetchAllPatients(filteredRequest, getUser(request))
-				.toHashMap();
-	}
-	
-	@GetMapping(value = "/patient-types")
-	public HashMap<String, Object> getAllPatientTypes(HttpServletRequest request) {
-		return nurseActivityWorklistService.fetchAllPatientTypes(getUser(request)).toHashMap();
-	}
 }
