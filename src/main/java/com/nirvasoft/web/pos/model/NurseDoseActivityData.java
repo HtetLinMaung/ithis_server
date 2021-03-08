@@ -3,11 +3,11 @@ package com.nirvasoft.web.pos.model;
 import java.util.HashMap;
 
 public class NurseDoseActivityData {
-	private long syskey;
-	private long nurseId;
-	private boolean done;
-	private String doneAt;
-	private long parentId;
+	private long syskey = 0;
+	private long nurseId = 0;
+	private boolean done = false;
+	private String doneAt = "";
+	private long parentId = 0;
 	
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<>();

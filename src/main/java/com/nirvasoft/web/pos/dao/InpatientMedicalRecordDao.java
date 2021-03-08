@@ -528,9 +528,9 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		stmt.setString(i++, parenteral.getGivenByType());
 		
 		// n1 - 7
-		stmt.setInt(i++, parenteral.getRouteSyskey());
+		stmt.setLong(i++, parenteral.getRouteSyskey());
 		stmt.setDouble(i++, parenteral.getDose());
-		stmt.setInt(i++, parenteral.getDoseTypeSyskey());
+		stmt.setLong(i++, parenteral.getDoseTypeSyskey());
 		stmt.setDouble(i++, parenteral.getFrequency());
 		stmt.setInt(i++, computeCheckboxCodes(parenteral));
 		stmt.setLong(i++, parenteral.isDoctor() ? 1: 0);
@@ -650,9 +650,9 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		stmt.setString(i++, injection.getGivenByType());
 		
 		// n1 - 7
-		stmt.setInt(i++, injection.getRouteSyskey());
+		stmt.setLong(i++, injection.getRouteSyskey());
 		stmt.setDouble(i++, injection.getDose());
-		stmt.setInt(i++, injection.getDoseTypeSyskey());
+		stmt.setLong(i++, injection.getDoseTypeSyskey());
 		stmt.setDouble(i++, injection.getFrequency());
 		stmt.setLong(i++, injection.isDoctor() ? 1: 0);
 		stmt.setLong(i++, !injection.isDoctor() ? 1: 0);
@@ -895,28 +895,36 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	}
 	
 	public ArrayList<NonParenteralData> getNonParenteralsInitial(FilterRequest filterRequest, Connection conn) throws SQLException {
-		if (filterRequest.isInitial()) {
-			String sql = "INSERT INTO tblNonParenteral (syskey, parentid, n1, t2, n2, n3, "
-					+ "t1, RgsNo, n4) "
-					+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, "
+			String sql = "SELECT t1.Syskey, t2.SysKey as routeSyskey, t1.Medication, t1.dose, "
 					+ "t1.doseSysKey, "
 					+ "t1.StockID, t1.rgsno, t1.Frequency "
 					+ "from viewNonParenteral AS t1 "
 					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
-					+ "WHERE t1.rgsno = ? AND t1.syskey NOT IN (SELECT parentid from tblNonParenteral)";
+					+ "WHERE t1.rgsno = ? AND t1.syskey NOT IN "
+					+ "(SELECT parentid from tblNonParenteral)";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, filterRequest.getRgsno());
-			stmt.executeUpdate();
-			
-			sql = "SELECT syskey, n4 FROM tblNonParenteral";
-			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
+			ArrayList<NonParenteralData> list = new ArrayList<>();
 			while (rs.next()) {
-				generateNurseDoseActivities(rs.getInt("n4"), rs.getLong("syskey"), conn);
+				NonParenteralData data = new NonParenteralData();
+				data.setParentId(rs.getLong("Syskey"));
+				data.setRouteSyskey(rs.getLong("routeSyskey"));
+				data.setMedication(rs.getString("Medication"));
+				data.setDose(rs.getDouble("dose"));
+				data.setDoseTypeSyskey(rs.getLong("doseSysKey"));
+				data.setStockId(rs.getString("StockID"));
+				data.setRgsNo(rs.getLong("rgsno"));
+				data.setFrequency(rs.getDouble("Frequency"));
+				ArrayList<NurseDoseActivityData> activityDataList = new ArrayList<>();
+				for (int i = 0; i < data.getFrequency(); i++) {
+					NurseDoseActivityData activityData = new NurseDoseActivityData();
+					activityDataList.add(activityData);
+				}
+				data.setCheckList(activityDataList);
+				list.add(data);
 			}
-		}
-		
-		return getAllNonParenterals(filterRequest, conn);
+		return list;
 	}
 	
 	public ArrayList<InjectionData> getAllInjections(FilterRequest filterRequest, Connection conn) throws SQLException {

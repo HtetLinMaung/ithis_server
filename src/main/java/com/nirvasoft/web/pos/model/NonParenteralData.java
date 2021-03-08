@@ -9,7 +9,7 @@ public class NonParenteralData extends PatientInfoData {
 	private String medication;
 	private double dose;
 	private int pId;
-	private int RgsNo;
+	private long rgsNo;
 	private String userid;
 	private String username;
 	private long parentId;
@@ -18,8 +18,8 @@ public class NonParenteralData extends PatientInfoData {
 	private boolean isDoctor;
 	private String nurseConfirmDate;
 	private String moConfirmDate;
-	private int routeSyskey;
-	private int doseTypeSyskey;
+	private long routeSyskey;
+	private long doseTypeSyskey;
 	private String dateStart;
 	private String dateOff;
 	private String diagnosis;
@@ -40,7 +40,7 @@ public class NonParenteralData extends PatientInfoData {
 		map.put("medication", medication);
 		map.put("dose", dose);
 		map.put("pId", pId);
-		map.put("RgsNo", RgsNo);
+		map.put("rgsNo", rgsNo);
 		map.put("userid", userid);
 		map.put("username", username);
 		map.put("parentId", parentId);
@@ -101,13 +101,7 @@ public class NonParenteralData extends PatientInfoData {
 		this.userid = userid;
 	}
 
-	public int getRgsNo() {
-		return RgsNo;
-	}
-
-	public void setRgsNo(int rgsNo) {
-		RgsNo = rgsNo;
-	}
+	
 
 	public String getUsername() {
 		return username;
@@ -165,11 +159,11 @@ public class NonParenteralData extends PatientInfoData {
 		this.moConfirmDate = moConfirmDate;
 	}
 
-	public int getRouteSyskey() {
+	public long getRouteSyskey() {
 		return routeSyskey;
 	}
 
-	public void setRouteSyskey(int routeSyskey) {
+	public void setRouteSyskey(long routeSyskey) {
 		this.routeSyskey = routeSyskey;
 	}
 
@@ -253,11 +247,11 @@ public class NonParenteralData extends PatientInfoData {
 		this.syskey = syskey;
 	}
 
-	public int getDoseTypeSyskey() {
+	public long getDoseTypeSyskey() {
 		return doseTypeSyskey;
 	}
 
-	public void setDoseTypeSyskey(int doseTypeSyskey) {
+	public void setDoseTypeSyskey(long doseTypeSyskey) {
 		this.doseTypeSyskey = doseTypeSyskey;
 	}
 
@@ -283,5 +277,13 @@ public class NonParenteralData extends PatientInfoData {
 
 	public void setFrequency(double frequency) {
 		this.frequency = frequency;
+	}
+
+	public long getRgsNo() {
+		return rgsNo;
+	}
+
+	public void setRgsNo(long rgsNo) {
+		this.rgsNo = rgsNo;
 	}
 }

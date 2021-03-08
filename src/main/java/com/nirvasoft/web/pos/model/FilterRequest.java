@@ -16,6 +16,7 @@ public class FilterRequest {
 	
 	private int page = 0;
 	private int perPage = 0;
+	private String sortBy;
 	private String search;
 	private ArrayList<AdvanceSearchData> advSearch = new ArrayList<>();
 	
@@ -130,5 +131,13 @@ public class FilterRequest {
 
 	public void setAdvSearch(ArrayList<AdvanceSearchData> advSearch) {
 		this.advSearch = advSearch;
+	}
+
+	public String getSortBy() {
+		return sortBy;
+	}
+
+	public void setSortBy(String sortBy) {
+		this.sortBy = sortBy;
 	}
 }
