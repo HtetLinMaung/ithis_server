@@ -13,7 +13,7 @@ public class StatMedicationData extends PatientInfoData {
 	private String engdesc;
 	private String remark;
 	private int pId;
-	private int rgsNo;
+	private long rgsNo;
 	private String userid;
 	private String username;
 	private long parentId;
@@ -260,11 +260,11 @@ public class StatMedicationData extends PatientInfoData {
 		this.moConfirmTime = moConfirmTime;
 	}
 
-	public int getRgsNo() {
+	public long getRgsNo() {
 		return rgsNo;
 	}
 
-	public void setRgsNo(int rgsNo) {
+	public void setRgsNo(long rgsNo) {
 		this.rgsNo = rgsNo;
 	}
 }

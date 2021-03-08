@@ -88,7 +88,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	
 	public ResponseData getAllStatMedications(FilterRequest req, Connection conn) throws SQLException {
 		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.t6, l.t7, l.t8, l.t9, l.t10, l.t11, "
-				+ "l.n1, l.n2, l.n3, l.n4, l.n6, l.n7, "
+				+ "l.n1, l.n2, l.n3, l.n4, l.n6, l.n7, l.RgsNo, "
 				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblStatMedication] "
 				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
 				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
@@ -117,6 +117,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
+			data.setRgsNo(rs.getLong("RgsNo"));
 			statMedications.add(data.toHashMap());
 		}
 		return createResponseData(req, statMedications, 
@@ -277,7 +278,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			stmt.setLong(i++, stat.getDoctorId());
 			stmt.setString(i++, stat.getAdNo());			
 			stmt.setLong(i++, stat.getpId());
-			stmt.setInt(i++, stat.getRgsNo());
+			stmt.setLong(i++, stat.getRgsNo());
 			stmt.setInt(i++, hsid);
 			stmt.setString(i++, stat.getUserid());
 			stmt.setString(i++, stat.getUsername());
