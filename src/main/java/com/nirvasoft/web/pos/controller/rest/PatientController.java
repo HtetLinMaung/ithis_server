@@ -25,7 +25,7 @@ public class PatientController extends IController {
 	PatientService patientService;
 	
 	@GetMapping(value = "/adnos/{pId}")
-	public ArrayList<String> getPatientByRgsNo(@PathVariable("pId") Long pId, 
+	public ArrayList<HashMap<String, Object>> getAdNosByPatient(@PathVariable("pId") Long pId, 
 			HttpServletRequest request) {
 		return patientService
 				.fetchAdNosByPatient(pId, getUser(request));
@@ -36,6 +36,14 @@ public class PatientController extends IController {
 	public HashMap<String, Object> getAllPatients(@RequestBody FilterRequest filteredRequest, HttpServletRequest request) {
 		return patientService
 				.fetchAllPatients(filteredRequest, getUser(request))
+				.toHashMap();
+	}
+	
+	@GetMapping(value = "/{rgsNo}")
+	public HashMap<String, Object> getPatientByRgsNo(@PathVariable("rgsNo") Long rgsNo, 
+			HttpServletRequest request) {
+		return patientService.
+				fetchPatientByRgsNo(rgsNo, getUser(request))
 				.toHashMap();
 	}
 	

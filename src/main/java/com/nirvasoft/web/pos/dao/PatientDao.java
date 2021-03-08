@@ -21,20 +21,62 @@ import com.nirvasoft.web.pos.util.QueryUtil;
 
 @Repository
 public class PatientDao extends QueryUtil {
-	public ArrayList<String> getAdNosByPatient(long pId, Connection conn)
+	public PatientData getPatientByRgsNo(long rgsNo, Connection conn) throws SQLException {
+		String sql = "select pId, patientid, RgsNo, RefNo, patientid, RgsName, FatherName, "
+				+ "Address, MCardNo, docfname, speicality, roomNo, ArivDate, DptDate, "
+				+ "PtType, RgsStatus, Age, DrID, Allergy, ward, BedId "
+				+ "from viewRegistration WHERE RgsNo = ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, rgsNo);
+		ResultSet rs = stmt.executeQuery();
+		
+		PatientData data = new PatientData();
+		while(rs.next()) {
+			data.setpId(rs.getLong("pId"));
+			data.setRgsNo(rs.getLong("RgsNo"));
+			data.setAdNo(rs.getString("RefNo"));
+			data.setId(rs.getString("patientid"));
+			data.setName(rs.getString("RgsName"));
+			data.setFatherName(rs.getString("FatherName"));
+			data.setAddress(rs.getString("Address"));
+			data.setmCardNo(rs.getString("MCardNo"));
+			data.setDoctor(rs.getString("docfname"));
+			data.setSpeciality(rs.getString("speicality"));
+			data.setRoomNo(rs.getString("roomNo"));
+			data.setAdDate(rs.getString("ArivDate"));
+			data.setDptDate(rs.getString("DptDate"));
+			data.setPatientType(rs.getInt("PtType"));
+			data.setRgsStatus(rs.getInt("RgsStatus"));
+			data.setAge(rs.getInt("Age"));
+			data.setDrID(rs.getString("DrID"));
+			data.setAllergy(rs.getString("Allergy"));
+			data.setWard(rs.getString("ward"));
+			data.setBed(rs.getString("BedId"));
+		}
+		return data;
+	}
+	
+	public ArrayList<HashMap<String, Object>> getAdNosByPatient(long pId, Connection conn)
 			throws SQLException {
-		String sql = "SELECT RefNo FROM viewRegistration WHERE pId = ?";
+		String sql = "SELECT RefNo, RgsNo FROM viewRegistration WHERE pId = ?";
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setLong(1, pId);
 		ResultSet rs = stmt.executeQuery();
 		
-		ArrayList<String> adNos = new ArrayList<>();
+		ArrayList<HashMap<String, Object>> adNos = new ArrayList<>();
 		while(rs.next()) {
-			adNos.add(rs.getString("RefNo"));
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("text", rs.getString("RefNo"));
+			map.put("value", rs.getString("RgsNo"));
+			adNos.add(map);
 		}
 		if (adNos.size() == 0) {
-			adNos.add("-");
+			HashMap<String, Object> map = new HashMap<>();
+			map.put("text", rs.getString("-"));
+			map.put("value", rs.getString("-"));
+			adNos.add(map);
 		}
 		
 		return adNos;
