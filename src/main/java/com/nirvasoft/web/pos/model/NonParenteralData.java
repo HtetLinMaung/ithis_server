@@ -18,6 +18,8 @@ public class NonParenteralData extends PatientInfoData {
 	private boolean isDoctor;
 	private String nurseConfirmDate;
 	private String moConfirmDate;
+	private String nurseConfirmTime;
+	private String moConfirmTime;
 	private long routeSyskey;
 	private long doseTypeSyskey;
 	private String dateStart;
@@ -49,6 +51,8 @@ public class NonParenteralData extends PatientInfoData {
 		map.put("isDoctor", isDoctor);
 		map.put("nurseConfirmDate", nurseConfirmDate);
 		map.put("moConfirmDate", moConfirmDate);
+		map.put("nurseConfirmTime", nurseConfirmTime);
+		map.put("moConfirmTime", moConfirmTime);
 		map.put("routeSyskey", routeSyskey);
 		map.put("dateStart", dateStart);
 		map.put("dateOff", dateOff);
@@ -285,5 +289,21 @@ public class NonParenteralData extends PatientInfoData {
 
 	public void setRgsNo(long rgsNo) {
 		this.rgsNo = rgsNo;
+	}
+
+	public String getNurseConfirmTime() {
+		return nurseConfirmTime;
+	}
+
+	public void setNurseConfirmTime(String nurseConfirmTime) {
+		this.nurseConfirmTime = nurseConfirmTime;
+	}
+
+	public String getMoConfirmTime() {
+		return moConfirmTime;
+	}
+
+	public void setMoConfirmTime(String moConfirmTime) {
+		this.moConfirmTime = moConfirmTime;
 	}
 }

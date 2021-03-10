@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.nirvasoft.web.pos.model.AdvanceSearchData;
 import com.nirvasoft.web.pos.model.FilterRequest;
@@ -56,7 +57,7 @@ public class QueryUtil {
 	}
 	
 	protected PreparedStatement preparePaginationQuery(String initialSql, 
-			String[] keys, FilterRequest req, String orderByKey, Connection conn) throws SQLException {
+			String[] keys, FilterRequest req, Connection conn) throws SQLException {
 		String sql = initialSql;
 		this.whereQuery = "";
 		if (req.getSearch() != null && !req.getSearch().isEmpty()) {
@@ -98,7 +99,7 @@ public class QueryUtil {
 			this.whereQuery = "WHERE " + sql.split("WHERE")[1];
 		}
 		
-		sql += String.format(" order by %s OFFSET ? ROW FETCH NEXT ? ROWS ONLY ", orderByKey);
+		if (!req.isAll()) sql += String.format(" order by %s OFFSET ? ROW FETCH NEXT ? ROWS ONLY ", req.getSortBy());
 		return conn.prepareStatement(sql);
 	}
 	
@@ -111,9 +112,9 @@ public class QueryUtil {
 	
 	protected ResultSet executePaginationQuery(String sql, 
 			String[] keys, FilterRequest req, Connection conn) throws SQLException {
-		PreparedStatement stmt = preparePaginationQuery(sql, keys, req, "syskey", conn);
+		PreparedStatement stmt = preparePaginationQuery(sql, keys, req, conn);
 		
-		setPaginationParams(1, req, stmt);
+		if (!req.isAll()) setPaginationParams(1, req, stmt);
 		
 		ResultSet rs = stmt.executeQuery();
 		return rs;
@@ -156,5 +157,37 @@ public class QueryUtil {
 			hsid = rs.getInt("syskey");
 		}
 		return hsid;
+	}
+	
+	protected ArrayList<Long> executeInsertMany(String tableName, String key, 
+			List<HashMap<String, Object>> data, Connection conn) throws SQLException {
+		String[] keys = key.split(",");
+		long nextSyskey = getNextSyskey(tableName, conn);
+		ArrayList<Long> insertedList = new ArrayList<Long>();
+		String sql = "INSERT INTO " + tableName + "(syskey," + keys + ") VALUES";
+		for (int i = 0; i < data.size(); i++) {
+			sql += " (";
+			for (int j = 0; j < keys.length; j++) {
+				sql += "?";
+				if (j != keys.length - 1) {
+					sql += ",";
+				}
+			}
+			sql += ")";
+			if (i != data.size() - 1) {
+				sql += ", ";
+			}
+		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		int i = 1;
+		for (HashMap<String, Object> item : data) {
+			stmt.setLong(i, nextSyskey);	
+			for (String k : keys) {
+				stmt.setObject(i++, item.get(k));
+			}
+			insertedList.add(nextSyskey++);
+		}
+		stmt.executeUpdate();
+		return insertedList;
 	}
 }

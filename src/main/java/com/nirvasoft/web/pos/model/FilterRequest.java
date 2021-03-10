@@ -6,7 +6,7 @@ public class FilterRequest {
 	private long patientId;
 	private int rgsno;
 	private long doctorId; 
-	private boolean all;
+	private boolean all = false;
 	private boolean initial = true;
 	private String date;
 	private String from;
@@ -16,7 +16,7 @@ public class FilterRequest {
 	
 	private int page = 0;
 	private int perPage = 0;
-	private String sortBy;
+	private String sortBy = "syskey";
 	private String search;
 	private ArrayList<AdvanceSearchData> advSearch = new ArrayList<>();
 	

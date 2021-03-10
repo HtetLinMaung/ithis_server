@@ -90,7 +90,10 @@ public class PatientDao extends QueryUtil {
 		
 		String[] keys = { "RefNo", "pId", "RgsName", "FatherName", "Address", 
 				"MCardNo", "docfname", "speicality", "roomNo", "ArivDate", "DptDate" };
-		PreparedStatement stmt = preparePaginationQuery(sql, keys, req, "pId", conn);
+		if (req.getSortBy().equals("syskey")) {
+			req.setSortBy("pId");
+		}
+		PreparedStatement stmt = preparePaginationQuery(sql, keys, req, conn);
 		int i = 1;
 		stmt.setInt(i++, req.getPatientType());
 		stmt.setInt(i++, req.getRgsStatus());

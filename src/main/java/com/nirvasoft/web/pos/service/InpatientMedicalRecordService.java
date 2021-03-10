@@ -283,9 +283,18 @@ public class InpatientMedicalRecordService {
 		return new ArrayList<StatMedicationData>();
 	}
 	
-	public ResponseData fetchStatMedications(FilterRequest req, UserData user) {
+	public ResponseData fetchAllStatMedications(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			return inpatientMedicalRecordDao.getAllStatMedications(req, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseData();
+	}
+	
+	public ResponseData fetchAllNonParenterals(FilterRequest req, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return inpatientMedicalRecordDao.getAllNonParenterals(req, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
