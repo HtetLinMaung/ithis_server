@@ -596,7 +596,10 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	}
 	
 	public long updateNonParenteral(long syskey, NonParenteralData parenteral, Connection conn) throws SQLException {
-		String sql = "UPDATE dbo.tblNonParenteral SET [userid] = ?, [username] = ?, [modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, t7 = ?, t8 = ?, t9 = ?, t10 = ?,  n1 = ?, n2 = ?, n3 = ?, n4 = ?, n5 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
+		String sql = "UPDATE dbo.tblNonParenteral SET [userid] = ?, [username] = ?, "
+				+ "[modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, "
+				+ "t7 = ?, t8 = ?, t9 = ?, t10 = ?, t11 = ?, t12 = ?, n1 = ?, n2 = ?, "
+				+ "n3 = ?, n4 = ?, n5 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		String currentDate = ServerUtil.getCurrentDate();
 		int i = 1;
@@ -605,7 +608,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		stmt.setString(i++, parenteral.getUsername());
 		stmt.setString(i++, currentDate);
 		
-		// t1 - 10
+		// t1 - 12
 		stmt.setString(i++, parenteral.getStockId());
 		stmt.setString(i++, parenteral.getMedication());	
 		stmt.setString(i++, parenteral.getRemark());
@@ -616,6 +619,8 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		stmt.setString(i++, parenteral.getDateStart());
 		stmt.setString(i++, parenteral.getDateOff());
 		stmt.setString(i++, parenteral.getGivenByType());
+		stmt.setString(i++, parenteral.getMoConfirmTime());
+		stmt.setString(i++, parenteral.getNurseConfirmTime());
 		
 		// n1 - 7
 		stmt.setLong(i++, parenteral.getRouteSyskey());
@@ -629,28 +634,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		stmt.setLong(i++, syskey);
 		
 		stmt.executeUpdate();
-		sql = "IF NOT EXISTS (SELECT * FROM dbo.tblNurseDoseActivity WHERE syskey = ?) "
-				+ "INSERT INTO dbo.tblNurseDoseActivity (syskey, done, done_at, nurse_id, parentId) "
-				+ "VALUES(?, ?, ?, ?, ?) "
-				+ "ELSE UPDATE dbo.tblNurseDoseActivity SET done = ?, done_at = ?, nurse_id = ? "
-				+ "WHERE syskey = ?";
-		for (NurseDoseActivityData doseActivity : parenteral.getCheckList()) {
-			stmt = conn.prepareStatement(sql);
-			i = 1;
-			stmt.setLong(i++, doseActivity.getSyskey());
-			
-			stmt.setLong(i++, getNextSyskey("tblNurseDoseActivity", conn));
-			stmt.setInt(i++, doseActivity.isDone() ? 1: 0);
-			stmt.setString(i++, doseActivity.getDoneAt());
-			stmt.setLong(i++, doseActivity.getNurseId());
-			stmt.setLong(i++, parenteral.getSyskey());
-			
-			stmt.setInt(i++, doseActivity.isDone() ? 1: 0);
-			stmt.setString(i++, doseActivity.getDoneAt());
-			stmt.setLong(i++, doseActivity.getNurseId());
-			stmt.setLong(i++, doseActivity.getSyskey());
-			stmt.executeUpdate();
-		}
+		saveDoseActivity(parenteral, conn);	
 		return syskey;
 	}
 	
@@ -923,8 +907,8 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	
 	public ResponseData getAllNonParenterals(FilterRequest req, 
 			Connection conn) throws SQLException {
-		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, "
-				+ "l.t6, l.t7, l.t8, l.t9, l.t10, l.t11, l.t12"
+		String sql = "SELECT syskey, l.RgsNo, l.t1, l.t2, l.t3, l.t4, l.t5, "
+				+ "l.t6, l.t7, l.t8, l.t9, l.t10, l.t11, l.t12, "
 				+ "l.n1, l.n2, l.n3, l.n4, l.n5, v.patientid, v.RgsName, v.RefNo "
 				+ "FROM tblNonParenteral AS l LEFT JOIN "
 				+ "(SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
@@ -939,6 +923,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		while (rs.next()) {
 			NonParenteralData data = new NonParenteralData();
 			data.setSyskey(rs.getLong("syskey"));
+			data.setRgsNo(rs.getLong("RgsNo"));
 			data.setStockId(rs.getString("t1"));
 			data.setMedication(rs.getString("t2"));
 			data.setRemark(rs.getString("t3"));
