@@ -51,4 +51,17 @@ public class PatientController extends IController {
 	public HashMap<String, Object> getAllPatientTypes(HttpServletRequest request) {
 		return patientService.fetchAllPatientTypes(getUser(request)).toHashMap();
 	}
+	
+	@GetMapping(value = "/role/{pId}")
+	public HashMap<String, Object> getUserRole(@PathVariable("pId") String pId, HttpServletRequest request) {
+		Boolean role = patientService.getRole(pId, getUser(request)).orElse(null);
+		HashMap<String, Object> map = new HashMap<>();
+		if (role != null) {
+			map.put("isDoctorRank", role);
+			map.put("status", 1);
+		} else {
+			map.put("status", 0);
+		}
+		return map;
+	}
 }

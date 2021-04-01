@@ -564,7 +564,10 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	}
 	
 	public long updateStatMedication(long syskey, StatMedicationData stat, Connection conn) throws SQLException {
-		String sql = "UPDATE dbo.tblStatMedication SET [userid] = ?, [username] = ?, [modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, t7 = ?, t8 = ?, t9 = ?, t10 = ?, t11 = ?, n1 = ?, n2 = ?, n3 = ?, n4 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
+		String sql = "UPDATE dbo.tblStatMedication SET [userid] = ?, [username] = ?, "
+				+ "[modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, "
+				+ "t7 = ?, t8 = ?, t9 = ?, t10 = ?, t11 = ?, n1 = ?, n2 = ?, n3 = ?, "
+				+ "n4 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		String currentDate = ServerUtil.getCurrentDate();
 		int i = 1;

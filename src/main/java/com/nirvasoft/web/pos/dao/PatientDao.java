@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
@@ -151,5 +151,19 @@ public class PatientDao extends QueryUtil {
 			res.setCurrentPatientType(rs.getInt("pttype"));
 		}
 		return res;
+	}
+	
+	public Optional<Boolean> getRole(String pId, Connection conn) throws SQLException {
+		String sql = "select r.n1 from refdoctors d inner join tblrole r on d.n2=r.syskey "
+				+ "inner join uvm005 u5 on u5.syskey=d.usersyskey "
+				+ "where u5.t1 = ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, pId);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			return Optional.of(rs.getLong("n1") == 1 ? true: false);
+		}
+		return null;
 	}
 }

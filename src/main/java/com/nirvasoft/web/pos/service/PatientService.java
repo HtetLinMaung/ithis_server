@@ -3,6 +3,7 @@ package com.nirvasoft.web.pos.service;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -55,5 +56,15 @@ public class PatientService {
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public Optional<Boolean> getRole(String pId, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return patientDao.getRole(pId, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+		
 	}
 }
