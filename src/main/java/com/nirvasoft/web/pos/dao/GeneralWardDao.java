@@ -20,7 +20,7 @@ public class GeneralWardDao {
 		String sql ="SELECT gw.syskey, gwd.syskey AS detailSyskey, gw.t1, gw.t2, gw.n1, gw.n2, gw.n3, gw.pId, gw.RgsNo, "
 				+ "gwd.t1 AS dayAt, gwd.t2 AS dayId, gwd.t3 AS dayName, gwd.t5 as nightAt, "
 				+ "gwd.t6 as nightId, gwd.t7 as nightName, gwd.n1 as dayNurse, "
-				+ "gwd.n2 as nightNurse, com.type, v.patientid, v.RgsName, v.RefNo "
+				+ "gwd.n2 as nightNurse, com.type, v.patientid, v.RgsName, v.RefNo, v.RgsNo "
 				+ "FROM tblGeneralWard AS gw "
 				+ "LEFT JOIN tblGeneralWardDetail AS gwd ON gw.syskey = gwd.parentid "
 				+ "LEFT JOIN [dbo].[ComTable] AS com ON gw.parentid = com.syskey "
@@ -52,6 +52,7 @@ public class GeneralWardDao {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
+			data.setRgsNo(rs.getInt("RgsNo"));
 			list.add(data);
 		}
 		return list;

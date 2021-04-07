@@ -161,9 +161,10 @@ public class PatientDao extends QueryUtil {
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		stmt.setString(1, pId);
 		ResultSet rs = stmt.executeQuery();
-		while (rs.next()) {
-			return Optional.of(rs.getLong("n1") == 1 ? true: false);
-		}
+			while (rs.next()) {	
+				return Optional.of(rs.getLong("n1") == 1 ? true: false);
+			}
+		
 		return null;
 	}
 }

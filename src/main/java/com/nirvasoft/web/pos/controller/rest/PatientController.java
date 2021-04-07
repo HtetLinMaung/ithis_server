@@ -55,6 +55,7 @@ public class PatientController extends IController {
 	@GetMapping(value = "/role/{pId}")
 	public HashMap<String, Object> getUserRole(@PathVariable("pId") String pId, HttpServletRequest request) {
 		Boolean role = patientService.getRole(pId, getUser(request)).orElse(null);
+
 		HashMap<String, Object> map = new HashMap<>();
 		if (role != null) {
 			map.put("isDoctorRank", role);

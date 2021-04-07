@@ -18,6 +18,7 @@ public class NurseActivity extends PatientInfoData {
 	private String siteUnit;
 	private String markingUnit;
 	private String externalLengthUnit;
+	private long rgsNo;
 	
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<>();
@@ -39,6 +40,7 @@ public class NurseActivity extends PatientInfoData {
 		map.put("patientId", patientId);
 		map.put("patientName", patientName);
 		map.put("adNo", adNo);
+		map.put("rgsNo", rgsNo);
 		return map;
 	}
 	
@@ -145,5 +147,13 @@ public class NurseActivity extends PatientInfoData {
 
 	public void setExternalLengthUnit(String externalLengthUnit) {
 		this.externalLengthUnit = externalLengthUnit;
+	}
+
+	public long getRgsNo() {
+		return rgsNo;
+	}
+
+	public void setRgsNo(long rgsNo) {
+		this.rgsNo = rgsNo;
 	}
 }

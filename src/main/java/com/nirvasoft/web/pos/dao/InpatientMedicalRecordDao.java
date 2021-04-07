@@ -26,7 +26,7 @@ import com.nirvasoft.web.pos.util.ServerUtil;
 public class InpatientMedicalRecordDao extends QueryUtil {
 	public ArrayList<InstructionData> getAllInstructions(Connection conn) throws SQLException {
 		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.pId, "
-				+ "v.patientid, v.RgsName, v.RefNo FROM [dbo].[tblInstruction] "
+				+ "v.patientid, v.RgsName, v.RefNo, v.RgsNo FROM [dbo].[tblInstruction] "
 				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
 				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -44,6 +44,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
+			data.setRgsNo(rs.getInt("RgsNo"));
 			instructions.add(data);
 		}
 		return instructions;
@@ -130,7 +131,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 
 	public ArrayList<BloodData> getAllBloods(Connection conn) throws SQLException {
 		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t8, l.t9, l.t10, "
-				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo FROM tblBlood AS l "
+				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo, v.RgsNo FROM tblBlood AS l "
 				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, "
 				+ "RefNo From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -155,6 +156,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
+			data.setRgsNo(rs.getInt("RgsNo"));
 			
 			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivityBlood] WHERE parentId = ?";
 			stmt = conn.prepareStatement(sql);
@@ -178,7 +180,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	
 	public ArrayList<DietData> getAllDiets(Connection conn) throws SQLException {
 		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t4, l.t6, l.t7, "
-				+ "v.patientid, v.RgsName, v.RefNo FROM tblDiet AS l "
+				+ "v.patientid, v.RgsName, v.RefNo, v.RgsNo FROM tblDiet AS l "
 				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
 				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
 		PreparedStatement stmt = conn.prepareStatement(sql);
@@ -196,6 +198,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
+			data.setRgsNo(rs.getInt("RgsNo"));			
 			list.add(data);
 		}
 		return list;
@@ -1012,7 +1015,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	
 	public ArrayList<InjectionData> getAllInjections(FilterRequest filterRequest, Connection conn) throws SQLException {
 		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t10, "
-				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo "
+				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo, v.RgsNo "
 				+ "FROM tblInjection AS l "
 				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, "
 				+ "RgsName, RefNo From viewRegistration) AS v "
@@ -1044,6 +1047,7 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setPatientId(rs.getString("patientid"));
 			data.setPatientName(rs.getString("RgsName"));
 			data.setAdNo(rs.getString("RefNo"));
+			data.setRgsNo(rs.getLong("RgsNo"));
 			
 			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivity2] WHERE parentId = ?";
 			stmt = conn.prepareStatement(sql);
