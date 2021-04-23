@@ -23,7 +23,7 @@ public class InjectionData extends PatientInfoData {
 	private String givenByType;
 	private double frequency;
 	private String remark;
-	private ArrayList<NurseDoseActivityData> checkList;
+	private ArrayList<NurseDoseActivityData> checkList = new ArrayList<>();
 	
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<>();

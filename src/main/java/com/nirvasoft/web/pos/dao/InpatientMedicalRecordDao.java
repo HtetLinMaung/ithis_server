@@ -1072,25 +1072,47 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	public ArrayList<InjectionData> getInjectionsInitial(FilterRequest filterRequest, Connection conn) throws SQLException {
 		
 		
-		if (filterRequest.isInitial()) {
-			String sql = "INSERT INTO tblInjection (syskey, parentid, n1, t2, n2, n3, t1, RgsNo, n4) "
-					+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, t1.doseSysKey, "
-					+ "t1.StockID, t1.rgsno, t1.Frequency from viewInjMedication AS t1 "
-					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
-					+ "WHERE t1.rgsno = ? AND t1.syskey NOT IN (SELECT parentid from tblInjection)";
+//		if (filterRequest.isInitial()) {
+//			String sql = "INSERT INTO tblInjection (syskey, parentid, n1, t2, n2, n3, t1, RgsNo, n4) "
+//					+ "SELECT t1.Syskey, t1.Syskey, t2.SysKey, t1.Medication, t1.dose, t1.doseSysKey, "
+//					+ "t1.StockID, t1.rgsno, t1.Frequency from viewInjMedication AS t1 "
+//					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route "
+//					+ "WHERE t1.rgsno = ? AND t1.syskey NOT IN (SELECT parentid from tblInjection)";
+			String sql = "SELECT t1.Syskey as parentId, t2.SysKey as routeSyskey, t1.Medication, "
+					+ "t1.dose, t1.doseSysKey, "
+					+ "t1.StockID, t1.rgsno, t1.Frequency FROM viewInjMedication AS t1 "
+					+ "LEFT JOIN tblRoute AS t2 ON t1.route = t2.Route WHERE "
+					+ "t1.rgsno = ? AND t1.Syskey NOT IN (SELECT parentid from tblInjection)";
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setInt(1, filterRequest.getRgsno());
-			stmt.executeUpdate();
-			
-			sql = "SELECT syskey, n4 FROM tblInjection";
-			stmt.setInt(1, filterRequest.getRgsno());
-			stmt = conn.prepareStatement(sql);
 			ResultSet rs = stmt.executeQuery();
+			
+			ArrayList<InjectionData> list = new ArrayList<>();
+			
 			while (rs.next()) {
-				generateNurseDoseActivities2(rs.getInt("n4"), rs.getLong("syskey"), conn);
-			}	
-		}
-		return getAllInjections(filterRequest, conn);
+				InjectionData data = new InjectionData();
+				data.setSyskey(0);
+				data.setParentId(rs.getLong("parentId"));
+				data.setRouteSyskey(rs.getInt("routeSyskey"));
+				data.setMedication(rs.getString("Medication"));
+				data.setDose(rs.getDouble("dose"));
+				data.setDoseTypeSyskey(rs.getInt("doseSysKey"));
+				data.setStockId(rs.getString("StockID"));
+				data.setRgsNo(rs.getLong("rgsno"));
+				data.setFrequency(rs.getDouble("Frequency"));
+				list.add(data);
+			}
+			return list;
+			
+//			sql = "SELECT syskey, n4 FROM tblInjection";
+//			stmt.setInt(1, filterRequest.getRgsno());
+//			stmt = conn.prepareStatement(sql);
+//			ResultSet rs = stmt.executeQuery();
+//			while (rs.next()) {
+//				generateNurseDoseActivities2(rs.getInt("n4"), rs.getLong("syskey"), conn);
+//			}	
+//		}
+//		return getAllInjections(filterRequest, conn);
 	}
 	
 	private boolean getCheckboxCode(int code, String c) {
