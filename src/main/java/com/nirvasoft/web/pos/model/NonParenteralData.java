@@ -32,7 +32,7 @@ public class NonParenteralData extends PatientInfoData {
 	private boolean chronicRenalFailure;
 	private boolean pregnant;
 	private double frequency;
-	private String remark;
+	private String remark = "";
 	private ArrayList<NurseDoseActivityData> checkList;
 	
 	

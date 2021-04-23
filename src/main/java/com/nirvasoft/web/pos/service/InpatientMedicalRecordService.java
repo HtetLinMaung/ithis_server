@@ -283,6 +283,15 @@ public class InpatientMedicalRecordService {
 		return new ArrayList<StatMedicationData>();
 	}
 	
+	public ResponseData fetchAllInjections(FilterRequest req, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return inpatientMedicalRecordDao.getAllInjections(req, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ResponseData();
+	}
+	
 	public ResponseData fetchAllStatMedications(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			return inpatientMedicalRecordDao.getAllStatMedications(req, conn);

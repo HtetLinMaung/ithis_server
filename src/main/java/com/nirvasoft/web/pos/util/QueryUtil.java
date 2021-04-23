@@ -99,7 +99,10 @@ public class QueryUtil {
 			this.whereQuery = "WHERE " + sql.split("WHERE")[1];
 		}
 		
-		if (!req.isAll()) sql += String.format(" order by %s OFFSET ? ROW FETCH NEXT ? ROWS ONLY ", req.getSortBy());
+		if (!req.isAll()) sql += String.format(" order by %s %s "
+				+ "OFFSET ? ROW FETCH NEXT ? ROWS ONLY ", 
+				req.getSortBy(), 
+				req.isLatestFirst() ? "DESC": "ASC");
 		return conn.prepareStatement(sql);
 	}
 	

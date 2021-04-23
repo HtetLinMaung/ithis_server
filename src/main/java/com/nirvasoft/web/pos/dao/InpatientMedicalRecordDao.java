@@ -410,9 +410,85 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	
 	public ArrayList<Long> saveInjection(ArrayList<InjectionData> data, Connection conn) throws SQLException {
 		ArrayList<Long> updatedList = new ArrayList<>();
-		for (InjectionData injection : data) {
-			updatedList.add(updateInjection(injection.getSyskey(), injection, conn));	
+		long nextSyskey = getNextSyskey("tblInjection", conn);
+		int hsid = getHsid(conn);
+		String sql = "INSERT INTO tblInjection (syskey, parentid, Doctorid, RefNo, pId, "
+				+ "RgsNo, hsid, userid, username, createddate, modifieddate, t1, t2, t3, "
+				+ "t6, t7, t8, t9, t10, n1, n2, n3, n4, n6, n7) VALUES ";
+		
+		for (int i = 0; i < data.size(); i++) {
+			sql += "(?, ?, ?, ?, ?,"
+					+ "?, ?, ?, ?, ?,"
+					+ "?, ?, ?, ?, ?,"
+					+ "?, ?, ?, ?, ?,"
+					+ "?, ?, ?, ?, ?)";
+			if (i != data.size() - 1) {
+				sql += ", ";
+			}
 		}
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		String currentDate = ServerUtil.getCurrentDate();
+		
+		int i = 1;
+		for (InjectionData injection : data) {
+			long userId = Long.parseLong(injection.getUserid());
+			stmt.setLong(i++, nextSyskey);
+			stmt.setLong(i++, injection.getParentId());
+			stmt.setLong(i++, injection.getDoctorId());
+			stmt.setString(i++, injection.getAdNo());			
+			stmt.setLong(i++, injection.getpId());
+			stmt.setLong(i++, injection.getRgsNo());
+			stmt.setInt(i++, hsid);
+			stmt.setString(i++, injection.getUserid());
+			stmt.setString(i++, injection.getUsername());
+			stmt.setString(i++, currentDate);
+			stmt.setString(i++, currentDate);
+			
+			// t1 - 10
+			stmt.setString(i++, injection.getStockId());
+			stmt.setString(i++, injection.getMedication());	
+			stmt.setString(i++, injection.getRemark() == null ? "": injection.getRemark());	
+			stmt.setString(i++, injection.getMoConfirmDate());	
+			stmt.setString(i++, injection.getNurseConfirmDate());	
+			stmt.setString(i++, injection.getMoConfirmTime());
+			stmt.setString(i++, injection.getNurseConfirmTime());
+			stmt.setString(i++, injection.getGivenByType());
+			
+			// n1 - 7
+			stmt.setLong(i++, injection.getRouteSyskey());
+			stmt.setDouble(i++, injection.getDose());
+			stmt.setLong(i++, injection.getDoseTypeSyskey());
+			stmt.setDouble(i++, injection.getFrequency());
+			stmt.setLong(i++, injection.isDoctor() ? userId: 0);
+			stmt.setLong(i++, !injection.isDoctor() ? userId: 0);
+			
+			
+			sql = "INSERT INTO dbo.tblNurseDoseActivity2 (syskey, done, done_at, nurse_id, "
+					+ "parentId) VALUES ";
+			
+			for (int j = 0; j < injection.getCheckList().size(); j++) {
+				sql += "(?, ?, ?, ?, ?)";
+				if (j != injection.getCheckList().size() - 1) {
+					sql += ", ";
+				}
+			}
+			PreparedStatement stmt2 = conn.prepareStatement(sql);
+			
+			int j = 1;
+			long id = getNextSyskey("tblNurseDoseActivity2", conn);
+			for (NurseDoseActivityData doseActivity : injection.getCheckList()) {
+				stmt2.setLong(j++, id++);
+				stmt2.setInt(j++, doseActivity.isDone() ? 1: 0);
+				stmt2.setString(j++, doseActivity.getDoneAt());
+				stmt2.setLong(j++, doseActivity.getNurseId());
+				stmt2.setLong(j++, nextSyskey);
+			}
+			stmt2.executeUpdate();
+			updatedList.add(nextSyskey++);
+			
+		}
+		stmt.executeUpdate();
+		
 		return updatedList;
 	}
 	
@@ -712,11 +788,13 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	}
 	
 	public long updateInjection(long syskey, InjectionData injection, Connection conn) throws SQLException {
-		String sql = "UPDATE dbo.tblInjection SET [userid] = ?, [username] = ?, [modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t6 = ?, t7 = ?, t10 = ?,  n1 = ?, n2 = ?, n3 = ?, n4 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
+		String sql = "UPDATE dbo.tblInjection SET [userid] = ?, [username] = ?, "
+				+ "[modifieddate] = ?, t1 = ?, t2 = ?, t3 = ?, t6 = ?, t7 = ?, t10 = ?,  "
+				+ "n1 = ?, n2 = ?, n3 = ?, n4 = ?, n6 = ?, n7 = ? WHERE syskey = ?";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		String currentDate = ServerUtil.getCurrentDate();
 		int i = 1;
-		
+		long userId = Long.parseLong(injection.getUserid());
 		stmt.setString(i++, injection.getUserid());
 		stmt.setString(i++, injection.getUsername());
 		stmt.setString(i++, currentDate);
@@ -734,8 +812,8 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		stmt.setDouble(i++, injection.getDose());
 		stmt.setLong(i++, injection.getDoseTypeSyskey());
 		stmt.setDouble(i++, injection.getFrequency());
-		stmt.setLong(i++, injection.isDoctor() ? 1: 0);
-		stmt.setLong(i++, !injection.isDoctor() ? 1: 0);
+		stmt.setLong(i++, injection.isDoctor() ? userId: 0);
+		stmt.setLong(i++, !injection.isDoctor() ? userId: 0);
 		
 		stmt.setLong(i++, syskey);
 		
@@ -1013,22 +1091,19 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 		return list;
 	}
 	
-	public ArrayList<InjectionData> getAllInjections(FilterRequest filterRequest, Connection conn) throws SQLException {
-		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t10, "
+	public ResponseData getAllInjections(FilterRequest req, Connection conn) throws SQLException {
+		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t8, l.t9, l.t10, "
 				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo, v.RgsNo "
 				+ "FROM tblInjection AS l "
 				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, "
 				+ "RgsName, RefNo From viewRegistration) AS v "
 				+ "ON l.RgsNo = v.RgsNo";
-		if (filterRequest.isInitial()) {
-			sql += " WHERE l.RgsNo = ?";
-		}
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		if (filterRequest.isInitial()) {
-			stmt.setInt(1, filterRequest.getRgsno());
-		}
-		ResultSet rs = stmt.executeQuery();
-		ArrayList<InjectionData> list = new ArrayList<>();
+
+		String[] keys = {"l.syskey", "l.t1", "l.t2", "l.t3", "l.t6", 
+				"l.t7", "l.t8", "l.t9", "l.t10", "l.n1", "l.n2", "l.n3", "l.n4", 
+				"v.patientid", "v.RgsName", "v.RefNo"};
+		ResultSet rs = executePaginationQuery(sql, keys, req, conn);
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
 		
 		while (rs.next()) {
 			InjectionData data = new InjectionData();
@@ -1038,6 +1113,8 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setRemark(rs.getString("t3"));
 			data.setMoConfirmDate(rs.getString("t6"));
 			data.setNurseConfirmDate(rs.getString("t7"));
+			data.setMoConfirmTime(rs.getString("t8"));
+			data.setNurseConfirmTime(rs.getString("t9"));
 			data.setGivenByType(rs.getString("t10"));
 			
 			data.setRouteSyskey(rs.getInt("n1"));
@@ -1049,8 +1126,9 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 			data.setAdNo(rs.getString("RefNo"));
 			data.setRgsNo(rs.getLong("RgsNo"));
 			
-			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM [dbo].[tblNurseDoseActivity2] WHERE parentId = ?";
-			stmt = conn.prepareStatement(sql);
+			sql = "SELECT [syskey], done, done_at, nurse_id, parentId FROM "
+					+ "[dbo].[tblNurseDoseActivity2] WHERE parentId = ?";
+			PreparedStatement stmt = conn.prepareStatement(sql);
 			stmt.setLong(1, rs.getLong("syskey"));
 			ResultSet rs2 = stmt.executeQuery();
 			ArrayList<NurseDoseActivityData> activityDataList = new ArrayList<NurseDoseActivityData>();
@@ -1064,9 +1142,13 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 				activityDataList.add(activityData);
 			}
 			data.setCheckList(activityDataList);
-			list.add(data);
+			list.add(data.toHashMap());
 		}
-		return list;
+		return createResponseData(req, list, 
+				getTotalOf("tblInjection AS l LEFT JOIN "
+						+ "(SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+						+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo", 
+				getWhereQuery(), new Object[] {}, conn));
 	}
 	
 	public ArrayList<InjectionData> getInjectionsInitial(FilterRequest filterRequest, Connection conn) throws SQLException {

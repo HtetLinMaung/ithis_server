@@ -16,7 +16,8 @@ public class FilterRequest {
 	
 	private int page = 0;
 	private int perPage = 0;
-	private String sortBy = "syskey";
+	private String sortBy = "l.createddate";
+	private boolean latestFirst = true;
 	private String search;
 	private ArrayList<AdvanceSearchData> advSearch = new ArrayList<>();
 	
@@ -139,5 +140,13 @@ public class FilterRequest {
 
 	public void setSortBy(String sortBy) {
 		this.sortBy = sortBy;
+	}
+
+	public boolean isLatestFirst() {
+		return latestFirst;
+	}
+
+	public void setLatestFirst(boolean latestFirst) {
+		this.latestFirst = latestFirst;
 	}
 }

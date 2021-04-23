@@ -153,6 +153,14 @@ public class InpatientMedicalRecordController extends IController {
 				.toHashMap();
 	}
 	
+	@PostMapping(value="/injections")
+	public HashMap<String, Object> getAllInjections(@RequestBody FilterRequest filterRequest, 
+			HttpServletRequest request) {
+		return inpatientMedicalRecordService
+				.fetchAllInjections(filterRequest, getUser(request))
+				.toHashMap();
+	}
+	
 	@PostMapping(value="/non-parenterals")
 	public HashMap<String, Object> getAllNonParenterals(@RequestBody FilterRequest filterRequest, 
 			HttpServletRequest request) {
