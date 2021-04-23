@@ -25,10 +25,12 @@ import com.nirvasoft.web.pos.util.ServerUtil;
 @Repository
 public class InpatientMedicalRecordDao extends QueryUtil {
 	public ArrayList<InstructionData> getAllInstructions(Connection conn) throws SQLException {
+//		TODO: change server side pagination
 		String sql = "SELECT syskey, l.t1, l.t2, l.t3, l.t4, l.t5, l.pId, "
 				+ "v.patientid, v.RgsName, v.RefNo, v.RgsNo FROM [dbo].[tblInstruction] "
 				+ "AS l LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
-				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
+				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo "
+				+ "ORDER BY createddate DESC";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<InstructionData> instructions = new ArrayList<>();
@@ -130,10 +132,12 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	
 
 	public ArrayList<BloodData> getAllBloods(Connection conn) throws SQLException {
+//		TODO: change server side pagination
 		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t6, l.t7, l.t8, l.t9, l.t10, "
 				+ "l.n1, l.n2, l.n3, l.n4, v.patientid, v.RgsName, v.RefNo, v.RgsNo FROM tblBlood AS l "
 				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, "
-				+ "RefNo From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
+				+ "RefNo From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo"
+				+ " ORDER BY createddate DESC";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<BloodData> list = new ArrayList<>();
@@ -179,10 +183,12 @@ public class InpatientMedicalRecordDao extends QueryUtil {
 	}
 	
 	public ArrayList<DietData> getAllDiets(Connection conn) throws SQLException {
+//		TODO: change server side pagination
 		String sql = "SELECT l.syskey, l.t1, l.t2, l.t3, l.t4, l.t6, l.t7, "
 				+ "v.patientid, v.RgsName, v.RefNo, v.RgsNo FROM tblDiet AS l "
 				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
-				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo";
+				+ "From viewRegistration) AS v ON l.pId = v.pId AND l.RgsNo = v.RgsNo"
+				+ " ORDER BY createddate DESC";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<DietData> list = new ArrayList<>();

@@ -26,12 +26,15 @@ import com.nirvasoft.web.pos.util.ServerUtil;
 @Repository
 public class NurseActivityWorklistDao extends QueryUtil {
 	public ArrayList<NurseActivity> getAllActivities(Connection conn) throws SQLException {
+//		TODO: change server side pagination
 		String sql = "SELECT t1.[syskey], t1.Doctorid, t2.name AS doctorName, "
 				+ "t1.[t4], t1.[t5], t1.[t6], t1.[n1], t1.[n2], t1.[n3], t1.[n4], "
 				+ "t1.[n5], t1.[t7], t1.[t8], t1.[t9], t1.[t10], v.patientid, v.RgsName, v.RefNo, v.RgsNo "
 				+ "FROM [dbo].[tblNurseActivity] AS t1 "
 				+ "LEFT JOIN [dbo].[viewDoctorSpeciality] AS t2 ON t1.Doctorid = t2.syskey "
-				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo From viewRegistration) AS v ON t1.pId = v.pId AND t1.RgsNo = v.RgsNo";
+				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo From "
+				+ "viewRegistration) AS v ON t1.pId = v.pId AND t1.RgsNo = v.RgsNo ORDER BY "
+				+ "createddate DESC";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		ArrayList<NurseActivity> activities = new ArrayList<>();
