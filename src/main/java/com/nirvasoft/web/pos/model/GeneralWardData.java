@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 public class GeneralWardData extends PatientInfoData {
 	private long syskey;
 	private int pId;
-	private int RgsNo;
+	private int rgsNo;
 	private String userid;
 	private String username;
 	private long parentId;
@@ -36,7 +36,7 @@ public class GeneralWardData extends PatientInfoData {
 		HashMap<String, Object> map = new HashMap<>();
 		map.put("syskey", syskey);
 		map.put("pId", pId);
-		map.put("RgsNo", RgsNo);
+		map.put("rgsNo", rgsNo);
 		map.put("userid", userid);
 		map.put("username", username);
 		map.put("parentId", parentId);
@@ -93,10 +93,10 @@ public class GeneralWardData extends PatientInfoData {
 		this.pId = pId;
 	}
 	public int getRgsNo() {
-		return RgsNo;
+		return rgsNo;
 	}
 	public void setRgsNo(int rgsNo) {
-		RgsNo = rgsNo;
+		this.rgsNo = rgsNo;
 	}
 	public String getUserid() {
 		return userid;
