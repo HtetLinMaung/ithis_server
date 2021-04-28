@@ -5,27 +5,29 @@ import java.util.HashMap;
 public class GeneralWardDetailData {
 	private long syskey;
 	private long parentId;
-	private boolean dayNurse;
-	private boolean nightNurse;
-	private String dayNurseAt;
-	private String dayNurseId;
-	private String dayNurseName;
-	private String nightNurseAt;
-	private String nightNurseId;
-	private String nightNurseName;
+	private boolean day;
+	private boolean night;
+	private String dayAt;
+	private String dayId;
+	private String dayName;
+	private String nightAt;
+	private String nightId;
+	private String nightName;
+	private String date;
 	
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<>();
 		map.put("syskey", syskey);
 		map.put("parentId", parentId);
-		map.put("dayNurse", dayNurse);
-		map.put("nightNurse", nightNurse);
-		map.put("dayNurseAt", dayNurseAt);
-		map.put("nightNurseAt", nightNurseAt);
-		map.put("dayNurseId", dayNurseId);
-		map.put("dayNurseName", dayNurseName);
-		map.put("nightNurseId", nightNurseId);
-		map.put("nightNurseName", nightNurseName);
+		map.put("day", day);
+		map.put("night", night);
+		map.put("dayAt", dayAt);
+		map.put("nightAt", nightAt);
+		map.put("dayId", dayId);
+		map.put("dayName", dayName);
+		map.put("nightId", nightId);
+		map.put("nightName", nightName);
+		map.put("date", date);
 		return map;
 	}
 	
@@ -41,60 +43,79 @@ public class GeneralWardDetailData {
 	public void setParentId(long parentId) {
 		this.parentId = parentId;
 	}
-	public boolean isDayNurse() {
-		return dayNurse;
-	}
-	public void setDayNurse(boolean dayNurse) {
-		this.dayNurse = dayNurse;
-	}
-	public String getDayNurseAt() {
-		return dayNurseAt;
-	}
-	public void setDayNurseAt(String dayNurseAt) {
-		this.dayNurseAt = dayNurseAt;
-	}
-	public boolean isNightNurse() {
-		return nightNurse;
-	}
-	public void setNightNurse(boolean nightNurse) {
-		this.nightNurse = nightNurse;
-	}
-	public String getNightNurseAt() {
-		return nightNurseAt;
-	}
-	public void setNightNurseAt(String nightNurseAt) {
-		this.nightNurseAt = nightNurseAt;
+
+	public boolean isDay() {
+		return day;
 	}
 
-	public String getDayNurseId() {
-		return dayNurseId;
+	public void setDay(boolean day) {
+		this.day = day;
 	}
 
-	public void setDayNurseId(String dayNurseId) {
-		this.dayNurseId = dayNurseId;
+	public boolean isNight() {
+		return night;
 	}
 
-	public String getDayNurseName() {
-		return dayNurseName;
+	public void setNight(boolean night) {
+		this.night = night;
 	}
 
-	public void setDayNurseName(String dayNurseName) {
-		this.dayNurseName = dayNurseName;
+	public String getDayAt() {
+		return dayAt;
 	}
 
-	public String getNightNurseId() {
-		return nightNurseId;
+	public void setDayAt(String dayAt) {
+		this.dayAt = dayAt;
 	}
 
-	public void setNightNurseId(String nightNurseId) {
-		this.nightNurseId = nightNurseId;
+	public String getDayId() {
+		return dayId;
 	}
 
-	public String getNightNurseName() {
-		return nightNurseName;
+	public void setDayId(String dayId) {
+		this.dayId = dayId;
 	}
 
-	public void setNightNurseName(String nightNurseName) {
-		this.nightNurseName = nightNurseName;
+	public String getDayName() {
+		return dayName;
 	}
+
+	public void setDayName(String dayName) {
+		this.dayName = dayName;
+	}
+
+	public String getNightAt() {
+		return nightAt;
+	}
+
+	public void setNightAt(String nightAt) {
+		this.nightAt = nightAt;
+	}
+
+	public String getNightId() {
+		return nightId;
+	}
+
+	public void setNightId(String nightId) {
+		this.nightId = nightId;
+	}
+
+	public String getNightName() {
+		return nightName;
+	}
+
+	public void setNightName(String nightName) {
+		this.nightName = nightName;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+	
+
+	
 }

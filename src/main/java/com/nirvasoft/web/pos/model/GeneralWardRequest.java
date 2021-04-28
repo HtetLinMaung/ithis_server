@@ -3,14 +3,14 @@ package com.nirvasoft.web.pos.model;
 import java.util.ArrayList;
 
 public class GeneralWardRequest {
-	private ArrayList<GeneralWardData> generalWards;
+	private ArrayList<GwData> generalWards;
 	private String date;
 
-	public ArrayList<GeneralWardData> getGeneralWards() {
+	public ArrayList<GwData> getGeneralWards() {
 		return generalWards;
 	}
 
-	public void setGeneralWards(ArrayList<GeneralWardData> generalWards) {
+	public void setGeneralWards(ArrayList<GwData> generalWards) {
 		this.generalWards = generalWards;
 	}
 

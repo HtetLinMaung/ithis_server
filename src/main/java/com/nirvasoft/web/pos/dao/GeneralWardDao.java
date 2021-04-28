@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 import com.nirvasoft.web.pos.model.FilterRequest;
 import com.nirvasoft.web.pos.model.GeneralWardData;
 import com.nirvasoft.web.pos.model.GeneralWardDetailData;
+import com.nirvasoft.web.pos.model.GoalData;
+import com.nirvasoft.web.pos.model.GwData;
 import com.nirvasoft.web.pos.model.StatMedicationData;
 import com.nirvasoft.web.pos.util.ServerUtil;
 
@@ -58,56 +60,161 @@ public class GeneralWardDao {
 		return list;
 	}
 	
-	public ArrayList<GeneralWardData> getGeneralWards(FilterRequest filteredReq, Connection conn) throws SQLException {
-		String sql = "SELECT gw.syskey, gw.parentid, gw.n1, gw.n2, gw.n3, gw.t1, gw.t2, gw.t3, gw.t4, gw.t5, "
-				+ "com.description FROM tblGeneralWard AS gw "
-				+ "LEFT JOIN [dbo].[ComTable] AS com ON com.syskey = gw.parentid";
+//	public ArrayList<GeneralWardData> getGeneralWards(FilterRequest filteredReq, Connection conn) throws SQLException {
+//		String sql = "SELECT gw.syskey, gw.parentid, gw.n1, gw.n2, gw.n3, gw.t1, gw.t2, gw.t3, gw.t4, gw.t5, "
+//				+ "com.description FROM tblGeneralWard AS gw "
+//				+ "LEFT JOIN [dbo].[ComTable] AS com ON com.syskey = gw.parentid";
+//		PreparedStatement stmt = conn.prepareStatement(sql);
+//		ResultSet rs = stmt.executeQuery();
+//		
+//		ArrayList<GeneralWardData> list = new ArrayList<>();
+//		
+//		while(rs.next()) {
+//			GeneralWardData data = new GeneralWardData();
+//			data.setSyskey(rs.getLong("syskey"));
+//			data.setParentId(rs.getLong("parentid"));
+//			data.setType(rs.getInt("n1"));
+//			data.setOutcomeMet(rs.getBoolean("n2"));
+//			data.setSelectedInterventions(rs.getInt("n3"));
+//			data.setInitialDate(rs.getString("t1"));
+//			data.setHeaderDesc(rs.getLong("parentid") == 0 ? rs.getString("t2") : rs.getString("description"));
+//			data.setOutcomeMetAt(rs.getString("t3"));
+//			data.setOutcomeMetId(rs.getString("t4"));
+//			data.setOutcomeMetName(rs.getString("t5"));
+//			
+//			sql = "SELECT syskey, t1, t2, t3, t5, t6, t7, n1, n2 FROM tblGeneralWardDetail "
+//					+ "WHERE parentid = ? AND ((REPLACE(SUBSTRING(t1, 0, 11), '-', '') >= ? "
+//					+ "AND REPLACE(SUBSTRING(t1, 0, 11), '-', '') <= ?) OR (REPLACE(SUBSTRING(t5, 0, 11), '-', '') >= ? "
+//					+ "AND REPLACE(SUBSTRING(t5, 0, 11), '-', '') <= ?))";
+//			stmt = conn.prepareStatement(sql);
+//			int i = 1;
+//			stmt.setLong(i++, data.getSyskey());
+//			stmt.setString(i++, fmtDateForJava(filteredReq.getFrom()));
+//			stmt.setString(i++, fmtDateForJava(filteredReq.getTo()));
+//			stmt.setString(i++, fmtDateForJava(filteredReq.getFrom()));
+//			stmt.setString(i++, fmtDateForJava(filteredReq.getTo()));
+//			ResultSet rs2 = stmt.executeQuery();
+//			ArrayList<GeneralWardDetailData> detailList = new ArrayList<>();
+//			while (rs2.next()) {
+//				GeneralWardDetailData detailData = new GeneralWardDetailData();
+//				detailData.setSyskey(rs2.getLong("syskey"));
+//				detailData.setDayNurseAt(rs2.getString("t1"));
+//				detailData.setDayNurseId(rs2.getString("t2"));
+//				detailData.setDayNurseName(rs2.getString("t3"));
+//				detailData.setNightNurseAt(rs2.getString("t5"));
+//				detailData.setNightNurseId(rs2.getString("t6"));
+//				detailData.setNightNurseName(rs2.getString("t7"));
+//				detailData.setDayNurse(rs2.getBoolean("n1"));
+//				detailData.setNightNurse(rs2.getBoolean("n2"));
+//				detailList.add(detailData);
+//			}
+//			data.setDetailList(detailList);
+//			
+//			list.add(data);
+//		}
+//		return list;
+//	}
+	
+//	public GwData getGwByIntervention(GwData data, Connection conn) throws SQLException {
+//		String sql = "SELECT syskey, n1, parentid, n3, t1, n2, t2 FROM tblGeneralWard WHERE "
+//				+ "RgsNo = ? AND parentId = ? AND n3 = ? AND n2 = 0";
+//		PreparedStatement stmt = conn.prepareStatement(sql);
+//		int i = 1;
+//		stmt.setLong(i++, data.getRgsNo());
+//		stmt.setLong(i++, data.getParentId());
+//		stmt.setInt(i++, data.getSelectedDesc());
+//		ResultSet rs = stmt.executeQuery();
+//		
+//		
+//		while (rs.next()) {
+//			data.setSyskey(rs.getLong("syskey"));
+//			data.setGoal(rs.getInt("n1"));
+//			data.setInterventionFrom(rs.getLong("parentid"), rs.getInt("n3"));
+//			data.setInitDate(rs.getString("t1"));
+//			data.setOutcomeMet(rs.getBoolean("n2"));
+//			data.setOutcomeMetAt(rs.getString("t2"));
+//		}
+//		
+//		sql = "SELECT syskey, parentId, t1, t2, t3, t4, t5, t6, n1, n2 FROM tblGeneralWardDetail "
+//				+ "WHERE parentId = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)";
+//		
+//		stmt = conn.prepareStatement(sql);
+//		i = 1;
+//		stmt.setLong(i++, data.getSyskey());
+//		stmt.setString(i++, getNow());
+//		stmt.setString(i++, getNow());
+//		rs = stmt.executeQuery();
+//		while (rs.next()) {
+//			data.setDetailSyskey(rs.getLong("syskey"));
+//			data.setDayAt(rs.getString("t1"));
+//			data.setDayId(rs.getString("t2"));
+//			data.setDayName(rs.getString("t3"));
+//			data.setNightAt(rs.getString("t4"));
+//			data.setNightId(rs.getString("t5"));
+//			data.setNightName(rs.getString("t6"));
+//			data.setNight(rs.getBoolean("n2"));
+//			data.setDay(rs.getBoolean("n1"));
+//		}
+//		return data;
+//	}
+	
+	public ArrayList<GwData> getGwsByRgsNo(FilterRequest req, Connection conn) throws SQLException {
+		String sql = "SELECT syskey, n1, parentid, n3, t1, n2, t2 FROM "
+				+ "tblGeneralWard WHERE RgsNo = ? AND n2 = 0";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, req.getRgsno());
+		ResultSet rs = stmt.executeQuery();
+		
+		ArrayList<GwData> list = new ArrayList<>();
+		while (rs.next()) {
+			GwData data = new GwData();
+			data.setSyskey(rs.getLong("syskey"));
+			data.setGoal(rs.getInt("n1"));
+			data.setInterventionFrom(rs.getLong("parentid"), rs.getInt("n3"));
+			data.setInitDate(rs.getString("t1"));
+			data.setOutcomeMet(rs.getBoolean("n2"));
+			data.setOutcomeMetAt(rs.getString("t2"));
+			
+			sql = "SELECT syskey, parentId, t1, t2, t3, t4, t5, t6, t7, n1, n2 "
+					+ "FROM tblGeneralWardDetail WHERE parentId = ?";
+			stmt = conn.prepareStatement(sql);
+			stmt.setLong(1, data.getSyskey());
+			ResultSet rs2 = stmt.executeQuery();
+			ArrayList<GeneralWardDetailData> shifts = new ArrayList<>();
+			while(rs2.next()) {
+				GeneralWardDetailData detailData = new GeneralWardDetailData();
+				detailData.setSyskey(rs2.getLong("syskey"));
+				detailData.setDayAt(rs2.getString("t1"));
+				detailData.setDayId(rs2.getString("t2"));
+				detailData.setDayName(rs2.getString("t3"));
+				detailData.setNightAt(rs2.getString("t4"));
+				detailData.setNightId(rs2.getString("t5"));
+				detailData.setNightName(rs2.getString("t6"));
+				detailData.setDate(rs2.getString("t7"));
+				detailData.setNight(rs2.getBoolean("n2"));
+				detailData.setDay(rs2.getBoolean("n1"));
+				shifts.add(detailData);
+			}
+			data.setShifts(shifts);	
+			list.add(data);
+		}
+		
+		return list;
+		
+	}
+	
+	public ArrayList<GoalData> getAllGoals(Connection conn) throws SQLException {
+		String sql = "SELECT syskey, type, description FROM [dbo].[ComTable] WHERE type >= 50";
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		ResultSet rs = stmt.executeQuery();
 		
-		ArrayList<GeneralWardData> list = new ArrayList<>();
 		
+		ArrayList<GoalData> list = new ArrayList<>();
 		while(rs.next()) {
-			GeneralWardData data = new GeneralWardData();
+			GoalData data = new GoalData();
 			data.setSyskey(rs.getLong("syskey"));
-			data.setParentId(rs.getLong("parentid"));
-			data.setType(rs.getInt("n1"));
-			data.setOutcomeMet(rs.getBoolean("n2"));
-			data.setSelectedInterventions(rs.getInt("n3"));
-			data.setInitialDate(rs.getString("t1"));
-			data.setHeaderDesc(rs.getLong("parentid") == 0 ? rs.getString("t2") : rs.getString("description"));
-			data.setOutcomeMetAt(rs.getString("t3"));
-			data.setOutcomeMetId(rs.getString("t4"));
-			data.setOutcomeMetName(rs.getString("t5"));
-			
-			sql = "SELECT syskey, t1, t2, t3, t5, t6, t7, n1, n2 FROM tblGeneralWardDetail "
-					+ "WHERE parentid = ? AND ((REPLACE(SUBSTRING(t1, 0, 11), '-', '') >= ? "
-					+ "AND REPLACE(SUBSTRING(t1, 0, 11), '-', '') <= ?) OR (REPLACE(SUBSTRING(t5, 0, 11), '-', '') >= ? "
-					+ "AND REPLACE(SUBSTRING(t5, 0, 11), '-', '') <= ?))";
-			stmt = conn.prepareStatement(sql);
-			int i = 1;
-			stmt.setLong(i++, data.getSyskey());
-			stmt.setString(i++, fmtDateForJava(filteredReq.getFrom()));
-			stmt.setString(i++, fmtDateForJava(filteredReq.getTo()));
-			stmt.setString(i++, fmtDateForJava(filteredReq.getFrom()));
-			stmt.setString(i++, fmtDateForJava(filteredReq.getTo()));
-			ResultSet rs2 = stmt.executeQuery();
-			ArrayList<GeneralWardDetailData> detailList = new ArrayList<>();
-			while (rs2.next()) {
-				GeneralWardDetailData detailData = new GeneralWardDetailData();
-				detailData.setSyskey(rs2.getLong("syskey"));
-				detailData.setDayNurseAt(rs2.getString("t1"));
-				detailData.setDayNurseId(rs2.getString("t2"));
-				detailData.setDayNurseName(rs2.getString("t3"));
-				detailData.setNightNurseAt(rs2.getString("t5"));
-				detailData.setNightNurseId(rs2.getString("t6"));
-				detailData.setNightNurseName(rs2.getString("t7"));
-				detailData.setDayNurse(rs2.getBoolean("n1"));
-				detailData.setNightNurse(rs2.getBoolean("n2"));
-				detailList.add(detailData);
-			}
-			data.setDetailList(detailList);
-			
+			data.setType(rs.getInt("type"));
+			data.setDescription(rs.getString("description"));
 			list.add(data);
 		}
 		return list;
@@ -174,120 +281,223 @@ public class GeneralWardDao {
 		return list;
 	}
 	
-	public ArrayList<Long> saveGeneralWards(ArrayList<GeneralWardData> list, String date, Connection conn) throws SQLException {
+	public ArrayList<Long> saveGeneralWards(ArrayList<GwData> list, Connection conn) 
+			throws SQLException {
 		ArrayList<Long> updatedList = new ArrayList<>();
-		String sql = "IF NOT EXISTS (SELECT * FROM dbo.tblGeneralWard WHERE syskey = ? AND n2 = 0) "
-				+ "INSERT INTO dbo.tblGeneralWard (syskey, n1, n2, n3, t1, t2, t3, t4, t5, "
-				+ "Doctorid, RefNo, [pId], [RgsNo], hsid, "
-				+ "[userid], [username], [createddate], [modifieddate], parentid) "
-				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?,"
-				+ " ?, ?, ?, ?, ?,"
-				+ " ?, ?, ?, ?, ?, ?) "
-				+ "ELSE UPDATE tblGeneralWard SET t1 = ?, n2 = ?, n3 = ?, [userid] = ?, [username] = ?, [modifieddate] = ?"
-				+ "WHERE syskey = ?";
 		String currentDate = ServerUtil.getCurrentDate();
-		String now = date;
+		String sql = "IF NOT EXISTS (SELECT * FROM tblGeneralWard WHERE syskey = ?) "
+				+ "INSERT INTO tblGeneralWard (syskey, n1, parentid, n3, t1, n2, t2, pId, "
+				+ "RgsNo, hsid, userid, username, createddate, modifieddate) VALUES "
+				+ "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ELSE UPDATE tblGeneralWard "
+				+ "SET n1 = ?, parentId = ?, n3 = ?, t1 = ?, n2 = ?, t2 = ?, userid = ?, "
+				+ "username = ?, modifieddate = ? WHERE syskey = ?";
 		
-		for (GeneralWardData data : list) {
+		
+		long hsid = getHsid(conn);
+		String now = currentDate.substring(0, 4) + "-" + currentDate.substring(4, 6) + currentDate.substring(6, 8);
+		for (GwData data: list) {
+			int i = 1;
 			long newSyskey = getNextSyskey("tblGeneralWard", conn);
 			PreparedStatement stmt = conn.prepareStatement(sql);
-			int i = 1;
-			stmt.setLong(i++, data.getSyskey());
+			stmt.setLong(i++, data.getSyskey());			
 			
-			stmt.setLong(i++, newSyskey); // new syskey
-			data.setSyskey(data.getSyskey() == 0 ? newSyskey: data.getSyskey());
-			stmt.setInt(i++, data.getType()); // n1
-			stmt.setBoolean(i++, data.isOutcomeMet()); // n2
-			stmt.setInt(i++, data.getSelectedInterventions()); // n3
-			stmt.setString(i++, data.getInitialDate()); // t1
-			stmt.setString(i++, data.getHeaderDesc()); // t2
-			stmt.setString(i++, data.getOutcomeMetAt()); // t3
-			stmt.setString(i++, data.getOutcomeMetId()); // t4
-			stmt.setString(i++, data.getOutcomeMetName()); // t5
-			stmt.setLong(i++, data.getDoctorId());
-			stmt.setString(i++, data.getSyskey() + "");			
+			stmt.setLong(i++, newSyskey);
+			stmt.setInt(i++, data.getGoal()); // n1
+			stmt.setLong(i++, data.getParentId());
+			stmt.setInt(i++, data.getSelectedDesc()); // n3
+			stmt.setString(i++, data.getInitDate()); // t1
+			stmt.setInt(i++, data.isOutcomeMet() ? 1 : 0); // n2
+			stmt.setString(i++, data.getOutcomeMetAt()); // t2
 			stmt.setLong(i++, data.getpId());
-			stmt.setInt(i++, data.getRgsNo());
-			stmt.setInt(i++, getHsid(conn));
+			stmt.setLong(i++, data.getRgsNo());
+			stmt.setLong(i++, hsid);
 			stmt.setString(i++, data.getUserid());
 			stmt.setString(i++, data.getUsername());
 			stmt.setString(i++, currentDate);
 			stmt.setString(i++, currentDate);
-			stmt.setLong(i++, data.getParentId());
 			
-			stmt.setString(i++, data.getInitialDate()); // t1
-			stmt.setBoolean(i++, data.isOutcomeMet()); // n2
-			stmt.setInt(i++, data.getSelectedInterventions()); // n3
+			// update
+			stmt.setInt(i++, data.getGoal()); // n1
+			stmt.setLong(i++, data.getParentId());
+			stmt.setInt(i++, data.getSelectedDesc()); // n3
+			stmt.setString(i++, data.getInitDate()); // t1
+			stmt.setInt(i++, data.isOutcomeMet() ? 1 : 0); // n2
+			stmt.setString(i++, data.getOutcomeMetAt()); // t2
 			stmt.setString(i++, data.getUserid());
 			stmt.setString(i++, data.getUsername());
 			stmt.setString(i++, currentDate);
 			stmt.setLong(i++, data.getSyskey());
 			stmt.executeUpdate();
 			
-			if (!data.isDayNurse() && !data.isNightNurse()) {
-				String sql2 = "DELETE FROM tblGeneralWardDetail "
-						+ "WHERE parentid = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)";
-				PreparedStatement stmt2 = conn.prepareStatement(sql2);
-				i = 1;
-				stmt2.setLong(i++, data.getSyskey());
-				stmt2.setString(i++, now);
-				stmt2.setString(i++, now);
-				stmt2.executeUpdate();
-			} else {
-				String sql2 = "IF NOT EXISTS (SELECT * FROM tblGeneralWardDetail "
-						+ "WHERE parentid = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)) "
-						+ "INSERT INTO tblGeneralWardDetail (syskey, parentid, [userid], [username], "
-						+ "[createddate], [modifieddate], t1, t2, t3, t5, t6, t7, n1, n2) "
-						+ "VALUES "
-						+ "(?, ?, ?, ?, ?, "
-						+ "?, ?, ?, ?, ?, "
-						+ "?, ?, ?, ?) "
-						+ "ELSE UPDATE tblGeneralWardDetail SET t1 = ?, t2 = ?, t3 = ?, t5 = ?, t6 = ?, t7 = ?, "
-						+ "n1 = ?, n2 = ?, [modifieddate] = ? "
-						+ "WHERE parentid = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)";
-				PreparedStatement stmt2 = conn.prepareStatement(sql2);
-				i = 1;
+			String detailSql = "IF NOT EXISTS (SELECT * FROM tblGeneralWardDetail "
+					+ "WHERE syskey = ?) "
+					+ "INSERT INTO tblGeneralWardDetail (userid, username, createddate, "
+					+ "modifieddate, syskey, parentid, t1, t2, t3, t4, t5, t6, t7, n1, n2) VALUES"
+					+ " (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ELSE "
+					+ "UPDATE tblGeneralWardDetail SET userid = ?, username = ?, modifieddate = ?,"
+					+ "t1 = ?, t2 = ?, t3 = ?, t4 = ?, t5 = ?, t6 = ?, n1 = ?, n2 = ? "
+					+ "WHERE syskey = ?";
+			for (GeneralWardDetailData detailData: data.getShifts()) {
+				PreparedStatement detailStmt = conn.prepareStatement(detailSql);
+				int j = 1;
 				
-				stmt2.setLong(i++, data.getSyskey());
-				stmt2.setString(i++, now);
-				stmt2.setString(i++, now);
+				detailStmt.setLong(j++, detailData.getSyskey());
+//				detailStmt.setString(j++, now);
+//				detailStmt.setString(j++, now);
 				
-				stmt2.setLong(i++, getNextSyskey("tblGeneralWardDetail", conn)); // new syskey
-				stmt2.setLong(i++, data.getSyskey());
-				stmt2.setString(i++, data.getUserid());
-				stmt2.setString(i++, data.getUsername());
-				stmt2.setString(i++, currentDate);
-				stmt2.setString(i++, currentDate);
-				stmt2.setString(i++, data.getDayNurseAt()); // t1
-				stmt2.setString(i++, data.getDayNurseId()); // t2
-				stmt2.setString(i++, data.getDayNurseName()); // t3
-				stmt2.setString(i++, data.getNightNurseAt()); // t5
-				stmt2.setString(i++, data.getNightNurseId()); // t6
-				stmt2.setString(i++, data.getNightNurseName()); // t7
-				stmt2.setBoolean(i++, data.isDayNurse()); // n1
-				stmt2.setBoolean(i++, data.isNightNurse()); // n2
+				detailStmt.setString(j++, data.getUserid());
+				detailStmt.setString(j++, data.getUsername());
+				detailStmt.setString(j++, currentDate);
+				detailStmt.setString(j++, currentDate);
+				detailStmt.setLong(j++, getNextSyskey("tblGeneralWardDetail", conn));
+				detailStmt.setLong(j++, data.getSyskey() == 0 ? newSyskey: data.getSyskey());
+				detailStmt.setString(j++, detailData.getDayAt());
+				detailStmt.setString(j++, detailData.getDayId());
+				detailStmt.setString(j++, detailData.getDayName());
+				detailStmt.setString(j++, detailData.getNightAt());
+				detailStmt.setString(j++, detailData.getNightId());
+				detailStmt.setString(j++, detailData.getNightName());
+				detailStmt.setString(j++, detailData.getDate());
+				detailStmt.setInt(j++, detailData.isDay() ? 1 : 0);
+				detailStmt.setInt(j++, detailData.isNight() ? 1 : 0);
 				
-				stmt2.setString(i++, data.getDayNurseAt()); // t1
-				stmt2.setString(i++, data.getDayNurseId()); // t2
-				stmt2.setString(i++, data.getDayNurseName()); // t3
-				stmt2.setString(i++, data.getNightNurseAt()); // t5
-				stmt2.setString(i++, data.getNightNurseId()); // t6
-				stmt2.setString(i++, data.getNightNurseName()); // t7
-				stmt2.setBoolean(i++, data.isDayNurse()); // n1
-				stmt2.setBoolean(i++, data.isNightNurse()); // n2
-				stmt2.setString(i++, currentDate);
-				stmt2.setLong(i++, data.getSyskey());
-				stmt2.setString(i++, now);
-				stmt2.setString(i++, now);
-				stmt2.executeUpdate();		
+				// update
+				detailStmt.setString(j++, data.getUserid());
+				detailStmt.setString(j++, data.getUsername());
+				detailStmt.setString(j++, currentDate);
+				detailStmt.setString(j++, detailData.getDayAt());
+				detailStmt.setString(j++, detailData.getDayId());
+				detailStmt.setString(j++, detailData.getDayName());
+				detailStmt.setString(j++, detailData.getNightAt());
+				detailStmt.setString(j++, detailData.getNightId());
+				detailStmt.setString(j++, detailData.getNightName());
+				detailStmt.setInt(j++, detailData.isDay() ? 1 : 0);
+				detailStmt.setInt(j++, detailData.isNight() ? 1 : 0);
+				detailStmt.setLong(j++, detailData.getSyskey());
+				
+				detailStmt.executeUpdate();
 			}
-			updatedList.add(newSyskey);
+			
+			updatedList.add(newSyskey++);
 		}
-		
-		
-		
 		return updatedList;
+				
 	}
+	
+//	public ArrayList<Long> saveGeneralWards(ArrayList<GeneralWardData> list, String date, Connection conn) throws SQLException {
+//		ArrayList<Long> updatedList = new ArrayList<>();
+//		String sql = "IF NOT EXISTS (SELECT * FROM dbo.tblGeneralWard WHERE syskey = ? AND n2 = 0) "
+//				+ "INSERT INTO dbo.tblGeneralWard (syskey, n1, n2, n3, t1, t2, t3, t4, t5, "
+//				+ "Doctorid, RefNo, [pId], [RgsNo], hsid, "
+//				+ "[userid], [username], [createddate], [modifieddate], parentid) "
+//				+ "VALUES(?, ?, ?, ?, ?, ?, ?, ?,"
+//				+ " ?, ?, ?, ?, ?,"
+//				+ " ?, ?, ?, ?, ?, ?) "
+//				+ "ELSE UPDATE tblGeneralWard SET t1 = ?, n2 = ?, n3 = ?, [userid] = ?, [username] = ?, [modifieddate] = ?"
+//				+ "WHERE syskey = ?";
+//		String currentDate = ServerUtil.getCurrentDate();
+//		String now = date;
+//		
+//		for (GeneralWardData data : list) {
+//			long newSyskey = getNextSyskey("tblGeneralWard", conn);
+//			PreparedStatement stmt = conn.prepareStatement(sql);
+//			int i = 1;
+//			stmt.setLong(i++, data.getSyskey());
+//			
+//			stmt.setLong(i++, newSyskey); // new syskey
+//			data.setSyskey(data.getSyskey() == 0 ? newSyskey: data.getSyskey());
+//			stmt.setInt(i++, data.getType()); // n1
+//			stmt.setBoolean(i++, data.isOutcomeMet()); // n2
+//			stmt.setInt(i++, data.getSelectedInterventions()); // n3
+//			stmt.setString(i++, data.getInitialDate()); // t1
+//			stmt.setString(i++, data.getHeaderDesc()); // t2
+//			stmt.setString(i++, data.getOutcomeMetAt()); // t3
+//			stmt.setString(i++, data.getOutcomeMetId()); // t4
+//			stmt.setString(i++, data.getOutcomeMetName()); // t5
+//			stmt.setLong(i++, data.getDoctorId());
+//			stmt.setString(i++, data.getSyskey() + "");			
+//			stmt.setLong(i++, data.getpId());
+//			stmt.setInt(i++, data.getRgsNo());
+//			stmt.setInt(i++, getHsid(conn));
+//			stmt.setString(i++, data.getUserid());
+//			stmt.setString(i++, data.getUsername());
+//			stmt.setString(i++, currentDate);
+//			stmt.setString(i++, currentDate);
+//			stmt.setLong(i++, data.getParentId());
+//			
+//			stmt.setString(i++, data.getInitialDate()); // t1
+//			stmt.setBoolean(i++, data.isOutcomeMet()); // n2
+//			stmt.setInt(i++, data.getSelectedInterventions()); // n3
+//			stmt.setString(i++, data.getUserid());
+//			stmt.setString(i++, data.getUsername());
+//			stmt.setString(i++, currentDate);
+//			stmt.setLong(i++, data.getSyskey());
+//			stmt.executeUpdate();
+//			
+//			if (!data.isDayNurse() && !data.isNightNurse()) {
+//				String sql2 = "DELETE FROM tblGeneralWardDetail "
+//						+ "WHERE parentid = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)";
+//				PreparedStatement stmt2 = conn.prepareStatement(sql2);
+//				i = 1;
+//				stmt2.setLong(i++, data.getSyskey());
+//				stmt2.setString(i++, now);
+//				stmt2.setString(i++, now);
+//				stmt2.executeUpdate();
+//			} else {
+//				String sql2 = "IF NOT EXISTS (SELECT * FROM tblGeneralWardDetail "
+//						+ "WHERE parentid = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)) "
+//						+ "INSERT INTO tblGeneralWardDetail (syskey, parentid, [userid], [username], "
+//						+ "[createddate], [modifieddate], t1, t2, t3, t5, t6, t7, n1, n2) "
+//						+ "VALUES "
+//						+ "(?, ?, ?, ?, ?, "
+//						+ "?, ?, ?, ?, ?, "
+//						+ "?, ?, ?, ?) "
+//						+ "ELSE UPDATE tblGeneralWardDetail SET t1 = ?, t2 = ?, t3 = ?, t5 = ?, t6 = ?, t7 = ?, "
+//						+ "n1 = ?, n2 = ?, [modifieddate] = ? "
+//						+ "WHERE parentid = ? AND (SUBSTRING(t1, 0, 11) = ? OR SUBSTRING(t5, 0, 11) = ?)";
+//				PreparedStatement stmt2 = conn.prepareStatement(sql2);
+//				i = 1;
+//				
+//				stmt2.setLong(i++, data.getSyskey());
+//				stmt2.setString(i++, now);
+//				stmt2.setString(i++, now);
+//				
+//				stmt2.setLong(i++, getNextSyskey("tblGeneralWardDetail", conn)); // new syskey
+//				stmt2.setLong(i++, data.getSyskey());
+//				stmt2.setString(i++, data.getUserid());
+//				stmt2.setString(i++, data.getUsername());
+//				stmt2.setString(i++, currentDate);
+//				stmt2.setString(i++, currentDate);
+//				stmt2.setString(i++, data.getDayNurseAt()); // t1
+//				stmt2.setString(i++, data.getDayNurseId()); // t2
+//				stmt2.setString(i++, data.getDayNurseName()); // t3
+//				stmt2.setString(i++, data.getNightNurseAt()); // t5
+//				stmt2.setString(i++, data.getNightNurseId()); // t6
+//				stmt2.setString(i++, data.getNightNurseName()); // t7
+//				stmt2.setBoolean(i++, data.isDayNurse()); // n1
+//				stmt2.setBoolean(i++, data.isNightNurse()); // n2
+//				
+//				stmt2.setString(i++, data.getDayNurseAt()); // t1
+//				stmt2.setString(i++, data.getDayNurseId()); // t2
+//				stmt2.setString(i++, data.getDayNurseName()); // t3
+//				stmt2.setString(i++, data.getNightNurseAt()); // t5
+//				stmt2.setString(i++, data.getNightNurseId()); // t6
+//				stmt2.setString(i++, data.getNightNurseName()); // t7
+//				stmt2.setBoolean(i++, data.isDayNurse()); // n1
+//				stmt2.setBoolean(i++, data.isNightNurse()); // n2
+//				stmt2.setString(i++, currentDate);
+//				stmt2.setLong(i++, data.getSyskey());
+//				stmt2.setString(i++, now);
+//				stmt2.setString(i++, now);
+//				stmt2.executeUpdate();		
+//			}
+//			updatedList.add(newSyskey);
+//		}
+//		
+//		
+//		
+//		return updatedList;
+//	}
 	
 	public long updateGeneralWard(long syskey, GeneralWardData data, Connection conn) throws SQLException {
 		String sql = "UPDATE tblGeneralWard SET t1 = ?, n2 = ?, t3 = ?, t4 = ?, t5 = ? WHERE syskey = ?";

@@ -21,6 +21,7 @@ import com.nirvasoft.web.pos.model.DeleteData;
 import com.nirvasoft.web.pos.model.FilterRequest;
 import com.nirvasoft.web.pos.model.GeneralWardData;
 import com.nirvasoft.web.pos.model.GeneralWardRequest;
+import com.nirvasoft.web.pos.model.GwData;
 import com.nirvasoft.web.pos.model.InstructionData;
 import com.nirvasoft.web.pos.service.GeneralWardService;
 
@@ -41,6 +42,15 @@ public class GeneralWardController extends IController {
 				.collect(Collectors.toList());
 	}
 	
+	@GetMapping(value="/goals")
+	public List<HashMap<String, Object>> getAllGoals(HttpServletRequest request) {
+		return generalWardService
+				.fetchAllGoals(getUser(request))
+				.stream()
+				.map(data -> data.toHashMap())
+				.collect(Collectors.toList());
+	}
+	
 	@PostMapping(value="/initials")
 	public List<HashMap<String, Object>> getAllGeneralWardsInitial(@RequestBody FilterRequest filteredReq, HttpServletRequest request) {
 		return generalWardService
@@ -50,19 +60,36 @@ public class GeneralWardController extends IController {
 				.collect(Collectors.toList());
 	}
 	
-	@PostMapping(value="/with-date")
-	public List<HashMap<String, Object>> getGeneralWards(@RequestBody FilterRequest filteredReq, HttpServletRequest request) {
+	@PostMapping(value="/with-rgsno")
+	public List<HashMap<String, Object>> getGwsByRgsNo(@RequestBody FilterRequest filteredReq, HttpServletRequest request) {
 		return generalWardService
-				.fetchGeneralWards(filteredReq, getUser(request))
+				.fetchGwsByRgsNo(filteredReq, getUser(request))
 				.stream()
 				.map(data -> data.toHashMap())
 				.collect(Collectors.toList());
 	}
 	
+//	@PostMapping(value="/with-date")
+//	public List<HashMap<String, Object>> getGeneralWards(@RequestBody FilterRequest filteredReq, HttpServletRequest request) {
+//		return generalWardService
+//				.fetchGeneralWards(filteredReq, getUser(request))
+//				.stream()
+//				.map(data -> data.toHashMap())
+//				.collect(Collectors.toList());
+//	}
+//	
+//	@PostMapping(value="/with-intervention")
+//	public HashMap<String, Object> getGwData(@RequestBody GwData data, HttpServletRequest request) {
+//		return generalWardService
+//				.fetchGwByIntervention(data, getUser(request))
+//				.toHashMap();	
+//	}
+	
+	
 	@PostMapping(value="/save")
 	public HashMap<String, Object> saveGeneralWards(@RequestBody GeneralWardRequest req, HttpServletRequest request) {
 		HashMap<String, Object> map = new HashMap<>();
-		ArrayList<Long> updatedList = generalWardService.saveGeneralWards(req.getGeneralWards(), req.getDate(), getUser(request));
+		ArrayList<Long> updatedList = generalWardService.saveGeneralWards(req.getGeneralWards(), getUser(request));
 		map.put("message", "General wards save successful!");
 		map.put("updatedList", updatedList);
 		return map;
