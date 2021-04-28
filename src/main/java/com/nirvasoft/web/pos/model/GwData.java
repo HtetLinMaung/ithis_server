@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-public class GwData {
+public class GwData extends PatientInfoData {
 	private long syskey;
 	private long pId;
 	private long rgsNo;
@@ -16,6 +16,7 @@ public class GwData {
 	private boolean outcomeMet;
 	private String outcomeMetAt;
 	private ArrayList<GeneralWardDetailData> shifts = new ArrayList<>();
+	private String interDesc;
 	
 	public HashMap<String, Object> toHashMap() {
 		HashMap<String, Object> map = new HashMap<>();
@@ -29,6 +30,10 @@ public class GwData {
 		map.put("initDate", initDate);
 		map.put("outcomeMet", outcomeMet);
 		map.put("outcomeMetAt", outcomeMetAt);
+		map.put("patientId", patientId);
+		map.put("patientName", patientName);
+		map.put("adNo", adNo);
+		map.put("interDesc", interDesc);
 		map.put("shifts", shifts
 				.stream()
 				.map(shift -> shift.toHashMap())
@@ -135,6 +140,14 @@ public class GwData {
 
 	public void setShifts(ArrayList<GeneralWardDetailData> shifts) {
 		this.shifts = shifts;
+	}
+
+	public String getInterDesc() {
+		return interDesc;
+	}
+
+	public void setInterDesc(String interDesc) {
+		this.interDesc = interDesc;
 	}
 
 	

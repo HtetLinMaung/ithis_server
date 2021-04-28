@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.springframework.stereotype.Repository;
 
@@ -13,52 +14,54 @@ import com.nirvasoft.web.pos.model.GeneralWardData;
 import com.nirvasoft.web.pos.model.GeneralWardDetailData;
 import com.nirvasoft.web.pos.model.GoalData;
 import com.nirvasoft.web.pos.model.GwData;
+import com.nirvasoft.web.pos.model.ResponseData;
 import com.nirvasoft.web.pos.model.StatMedicationData;
+import com.nirvasoft.web.pos.util.QueryUtil;
 import com.nirvasoft.web.pos.util.ServerUtil;
 
 @Repository
-public class GeneralWardDao {
-	public ArrayList<GeneralWardData> getAllGeneralWards(Connection conn) throws SQLException {
-		String sql ="SELECT gw.syskey, gwd.syskey AS detailSyskey, gw.t1, gw.t2, gw.n1, gw.n2, gw.n3, gw.pId, gw.RgsNo, "
-				+ "gwd.t1 AS dayAt, gwd.t2 AS dayId, gwd.t3 AS dayName, gwd.t5 as nightAt, "
-				+ "gwd.t6 as nightId, gwd.t7 as nightName, gwd.n1 as dayNurse, "
-				+ "gwd.n2 as nightNurse, com.type, v.patientid, v.RgsName, v.RefNo, v.RgsNo "
-				+ "FROM tblGeneralWard AS gw "
-				+ "LEFT JOIN tblGeneralWardDetail AS gwd ON gw.syskey = gwd.parentid "
-				+ "LEFT JOIN [dbo].[ComTable] AS com ON gw.parentid = com.syskey "
-				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
-				+ "From viewRegistration) AS v ON gw.pId = v.pId AND gw.RgsNo = v.RgsNo";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		ArrayList<GeneralWardData> list = new ArrayList<>();
-		while(rs.next()) {
-			GeneralWardData data = new GeneralWardData();
-			data.setSyskey(rs.getLong("syskey"));
-			data.setpId(rs.getInt("pId"));
-			data.setRgsNo(rs.getInt("RgsNo"));
-			data.setType(rs.getInt("n1"));
-			data.setHeaderDesc(rs.getString("t2"));
-			data.setOutcomeMet(rs.getBoolean("n2"));
-			data.setInitialDate(rs.getString("t1"));
-			data.setSelectedInterventions(rs.getInt("n3"));
-			data.setDayNurse(rs.getBoolean("dayNurse"));
-			data.setNightNurse(rs.getBoolean("nightNurse"));
-			data.setDayNurseAt(rs.getString("dayAt"));
-			data.setDayNurseId(rs.getString("dayId"));
-			data.setDayNurseName(rs.getString("dayName"));
-			data.setNightNurseAt(rs.getString("nightAt"));
-			data.setNightNurseId(rs.getString("nightId"));
-			data.setNightNurseName(rs.getString("nightName"));
-			data.setType(rs.getInt("type"));
-			data.setDetailSyskey(rs.getLong("detailSyskey"));
-			data.setPatientId(rs.getString("patientid"));
-			data.setPatientName(rs.getString("RgsName"));
-			data.setAdNo(rs.getString("RefNo"));
-			data.setRgsNo(rs.getInt("RgsNo"));
-			list.add(data);
-		}
-		return list;
-	}
+public class GeneralWardDao extends QueryUtil {
+//	public ArrayList<GeneralWardData> getAllGeneralWards(Connection conn) throws SQLException {
+//		String sql ="SELECT gw.syskey, gwd.syskey AS detailSyskey, gw.t1, gw.t2, gw.n1, gw.n2, gw.n3, gw.pId, gw.RgsNo, "
+//				+ "gwd.t1 AS dayAt, gwd.t2 AS dayId, gwd.t3 AS dayName, gwd.t5 as nightAt, "
+//				+ "gwd.t6 as nightId, gwd.t7 as nightName, gwd.n1 as dayNurse, "
+//				+ "gwd.n2 as nightNurse, com.type, v.patientid, v.RgsName, v.RefNo, v.RgsNo "
+//				+ "FROM tblGeneralWard AS gw "
+//				+ "LEFT JOIN tblGeneralWardDetail AS gwd ON gw.syskey = gwd.parentid "
+//				+ "LEFT JOIN [dbo].[ComTable] AS com ON gw.parentid = com.syskey "
+//				+ "LEFT JOIN (SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+//				+ "From viewRegistration) AS v ON gw.pId = v.pId AND gw.RgsNo = v.RgsNo";
+//		PreparedStatement stmt = conn.prepareStatement(sql);
+//		ResultSet rs = stmt.executeQuery();
+//		ArrayList<GeneralWardData> list = new ArrayList<>();
+//		while(rs.next()) {
+//			GeneralWardData data = new GeneralWardData();
+//			data.setSyskey(rs.getLong("syskey"));
+//			data.setpId(rs.getInt("pId"));
+//			data.setRgsNo(rs.getInt("RgsNo"));
+//			data.setType(rs.getInt("n1"));
+//			data.setHeaderDesc(rs.getString("t2"));
+//			data.setOutcomeMet(rs.getBoolean("n2"));
+//			data.setInitialDate(rs.getString("t1"));
+//			data.setSelectedInterventions(rs.getInt("n3"));
+//			data.setDayNurse(rs.getBoolean("dayNurse"));
+//			data.setNightNurse(rs.getBoolean("nightNurse"));
+//			data.setDayNurseAt(rs.getString("dayAt"));
+//			data.setDayNurseId(rs.getString("dayId"));
+//			data.setDayNurseName(rs.getString("dayName"));
+//			data.setNightNurseAt(rs.getString("nightAt"));
+//			data.setNightNurseId(rs.getString("nightId"));
+//			data.setNightNurseName(rs.getString("nightName"));
+//			data.setType(rs.getInt("type"));
+//			data.setDetailSyskey(rs.getLong("detailSyskey"));
+//			data.setPatientId(rs.getString("patientid"));
+//			data.setPatientName(rs.getString("RgsName"));
+//			data.setAdNo(rs.getString("RefNo"));
+//			data.setRgsNo(rs.getInt("RgsNo"));
+//			list.add(data);
+//		}
+//		return list;
+//	}
 	
 //	public ArrayList<GeneralWardData> getGeneralWards(FilterRequest filteredReq, Connection conn) throws SQLException {
 //		String sql = "SELECT gw.syskey, gw.parentid, gw.n1, gw.n2, gw.n3, gw.t1, gw.t2, gw.t3, gw.t4, gw.t5, "
@@ -157,6 +160,64 @@ public class GeneralWardDao {
 //		}
 //		return data;
 //	}
+	
+	public ResponseData getAllGws(FilterRequest req, Connection conn) throws SQLException {
+		String sql = "SELECT v.patientid, v.RgsName, v.RefNo, v.RgsNo, c.description, l.syskey, l.n1, "
+				+ "l.parentid, l.n3, l.t1, l.n2, l.t2 FROM tblGeneralWard AS l LEFT JOIN "
+				+ "(SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo From "
+				+ "viewRegistration) AS v ON l.pId = v.pId AND v.RgsNo = l.RgsNo LEFT JOIN "
+				+ "ComTable AS c ON l.parentid = c.syskey";
+		String[] keys = {"v.patientid", "v.RgsName", "v.RefNo", "c.description", "l.n1", 
+				"l.t1", "l.n2", "l.t2"};
+		ResultSet rs = executePaginationQuery(sql, keys, req, conn);
+		ArrayList<HashMap<String, Object>> list = new ArrayList<>();
+		while (rs.next()) {
+			GwData data = new GwData();
+			data.setPatientId(rs.getString("patientid"));
+			data.setPatientName(rs.getString("RgsName"));
+			data.setAdNo(rs.getString("RefNo"));
+			data.setInterDesc(rs.getString("description"));
+			data.setSyskey(rs.getLong("syskey"));
+			data.setGoal(rs.getInt("n1"));
+			data.setInterventionFrom(rs.getLong("parentid"), rs.getInt("n3"));
+			data.setInitDate(rs.getString("t1"));
+			data.setOutcomeMet(rs.getBoolean("n2"));
+			data.setOutcomeMetAt(rs.getString("t2"));
+			data.setRgsNo(rs.getLong("RgsNo"));
+			list.add(data.toHashMap());
+		}
+		return createResponseData(req, list, 
+				getTotalOf("tblGeneralWard AS l LEFT JOIN "
+						+ "(SELECT DISTINCT pId, RgsNo, patientid, RgsName, RefNo "
+						+ "From viewRegistration) AS v ON l.pId = v.pId AND v.RgsNo = l.RgsNo "
+						+ "LEFT JOIN ComTable AS c ON l.parentid = c.syskey", getWhereQuery(), 
+						new Object[] {}, conn));
+	}
+	
+	public ArrayList<GeneralWardDetailData> getShiftsByParent(long parentId, Connection conn) throws SQLException {
+		String sql = "SELECT syskey, parentId, t1, t2, t3, t4, t5, t6, t7, n1, n2 "
+				+ "FROM tblGeneralWardDetail WHERE parentId = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setLong(1, parentId);
+		ResultSet rs = stmt.executeQuery();
+		
+		ArrayList<GeneralWardDetailData> shifts = new ArrayList<>();
+		while(rs.next()) {
+			GeneralWardDetailData detailData = new GeneralWardDetailData();
+			detailData.setSyskey(rs.getLong("syskey"));
+			detailData.setDayAt(rs.getString("t1"));
+			detailData.setDayId(rs.getString("t2"));
+			detailData.setDayName(rs.getString("t3"));
+			detailData.setNightAt(rs.getString("t4"));
+			detailData.setNightId(rs.getString("t5"));
+			detailData.setNightName(rs.getString("t6"));
+			detailData.setDate(rs.getString("t7"));
+			detailData.setNight(rs.getBoolean("n2"));
+			detailData.setDay(rs.getBoolean("n1"));
+			shifts.add(detailData);
+		}
+		return shifts;
+	}
 	
 	public ArrayList<GwData> getGwsByRgsNo(FilterRequest req, Connection conn) throws SQLException {
 		String sql = "SELECT syskey, n1, parentid, n3, t1, n2, t2 FROM "
@@ -294,7 +355,7 @@ public class GeneralWardDao {
 		
 		
 		long hsid = getHsid(conn);
-		String now = currentDate.substring(0, 4) + "-" + currentDate.substring(4, 6) + currentDate.substring(6, 8);
+		
 		for (GwData data: list) {
 			int i = 1;
 			long newSyskey = getNextSyskey("tblGeneralWard", conn);
@@ -342,8 +403,6 @@ public class GeneralWardDao {
 				int j = 1;
 				
 				detailStmt.setLong(j++, detailData.getSyskey());
-//				detailStmt.setString(j++, now);
-//				detailStmt.setString(j++, now);
 				
 				detailStmt.setString(j++, data.getUserid());
 				detailStmt.setString(j++, data.getUsername());
@@ -539,34 +598,34 @@ public class GeneralWardDao {
 		return stmt.executeUpdate();
 	}
 	
-	private int getHsid(Connection conn) throws SQLException {
-		String sql = "select syskey from clinic";
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		int hsid = 0;
-		while(rs.next()) {
-			hsid = rs.getInt("syskey");
-		}
-		return hsid;
-	}
+//	private int getHsid(Connection conn) throws SQLException {
+//		String sql = "select syskey from clinic";
+//		PreparedStatement stmt = conn.prepareStatement(sql);
+//		ResultSet rs = stmt.executeQuery();
+//		int hsid = 0;
+//		while(rs.next()) {
+//			hsid = rs.getInt("syskey");
+//		}
+//		return hsid;
+//	}
+//	
+//	private long getNextSyskey(String tableName, Connection conn) throws SQLException {
+//		String sql = String.format("SELECT max(syskey) AS syskey FROM %s", tableName);
+//		PreparedStatement stmt = conn.prepareStatement(sql);
+//		ResultSet rs = stmt.executeQuery();
+//		long syskey = 0;
+//		while(rs.next()) {
+//			syskey = rs.getLong("syskey");
+//		}
+//		return syskey + 1;
+//	}
 	
-	private long getNextSyskey(String tableName, Connection conn) throws SQLException {
-		String sql = String.format("SELECT max(syskey) AS syskey FROM %s", tableName);
-		PreparedStatement stmt = conn.prepareStatement(sql);
-		ResultSet rs = stmt.executeQuery();
-		long syskey = 0;
-		while(rs.next()) {
-			syskey = rs.getLong("syskey");
-		}
-		return syskey + 1;
-	}
+//	private String getNow() {
+//		String currentDate = ServerUtil.getCurrentDate();
+//		return currentDate.substring(0, 4) + "-" + currentDate.substring(4, 6) + "-" + currentDate.substring(6, 8);
+//	}
 	
-	private String getNow() {
-		String currentDate = ServerUtil.getCurrentDate();
-		return currentDate.substring(0, 4) + "-" + currentDate.substring(4, 6) + "-" + currentDate.substring(6, 8);
-	}
-	
-	private String fmtDateForJava(String date) {
-		return date.replaceAll("-", "");
-	}
+//	private String fmtDateForJava(String date) {
+//		return date.replaceAll("-", "");
+//	}
 }

@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 import com.nirvasoft.web.pos.dao.GeneralWardDao;
 import com.nirvasoft.web.pos.model.FilterRequest;
 import com.nirvasoft.web.pos.model.GeneralWardData;
+import com.nirvasoft.web.pos.model.GeneralWardDetailData;
 import com.nirvasoft.web.pos.model.GoalData;
 import com.nirvasoft.web.pos.model.GwData;
 import com.nirvasoft.web.pos.model.InjectionData;
+import com.nirvasoft.web.pos.model.ResponseData;
 import com.nirvasoft.web.pos.model.UserData;
 import com.nirvasoft.web.pos.util.ConnectionUtil;
 
@@ -52,14 +54,22 @@ public class GeneralWardService {
 		return list;
 	}
 	
-	public ArrayList<GeneralWardData> fetchAllGeneralWards(UserData user) {
-		ArrayList<GeneralWardData> list = new ArrayList<>();
+	public ResponseData fetchAllGeneralWards(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-			list = generalWardDao.getAllGeneralWards(conn);
+			return generalWardDao.getAllGws(req, conn);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return list;
+		return new ResponseData();
+	}
+	
+	public ArrayList<GeneralWardDetailData> fetchShiftsByParent(long parentId, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return generalWardDao.getShiftsByParent(parentId, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<GeneralWardDetailData>();
 	}
 	
 //	public ArrayList<GeneralWardData> fetchGeneralWards(FilterRequest filteredReq, UserData user) {

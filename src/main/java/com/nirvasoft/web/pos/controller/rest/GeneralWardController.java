@@ -33,19 +33,28 @@ public class GeneralWardController extends IController {
 	@Autowired
 	private GeneralWardService generalWardService;
 	
-	@GetMapping(value="/")
-	public List<HashMap<String, Object>> getAllGeneralWards(HttpServletRequest request) {
+	@PostMapping(value="/")
+	public HashMap<String, Object> getAllGeneralWards(@RequestBody FilterRequest req, HttpServletRequest request) {
 		return generalWardService
-				.fetchAllGeneralWards(getUser(request))
-				.stream()
-				.map(data -> data.toHashMap())
-				.collect(Collectors.toList());
+				.fetchAllGeneralWards(req, getUser(request))
+				.toHashMap();
+				
 	}
 	
 	@GetMapping(value="/goals")
 	public List<HashMap<String, Object>> getAllGoals(HttpServletRequest request) {
 		return generalWardService
 				.fetchAllGoals(getUser(request))
+				.stream()
+				.map(data -> data.toHashMap())
+				.collect(Collectors.toList());
+	}
+	
+	@GetMapping(value="/shifts/{parentId}")
+	public List<HashMap<String, Object>> getShiftsByParent(
+			@PathVariable("parentId") Long parentId, HttpServletRequest request) {
+		return generalWardService
+				.fetchShiftsByParent(parentId, getUser(request))
 				.stream()
 				.map(data -> data.toHashMap())
 				.collect(Collectors.toList());

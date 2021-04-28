@@ -16,7 +16,7 @@ public class FilterRequest {
 	
 	private int page = 0;
 	private int perPage = 0;
-	private String sortBy = "l.createddate";
+	private String sortBy = "l.modifieddate";
 	private boolean latestFirst = true;
 	private String search;
 	private ArrayList<AdvanceSearchData> advSearch = new ArrayList<>();
