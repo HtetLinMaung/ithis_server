@@ -160,6 +160,9 @@ public class GeneralWardDao extends QueryUtil {
 //		}
 //		return data;
 //	}
+//	public ArrayList<GwData> getPateintADL(FilterRequest req, Connection conn) throws SQLException {
+//		String sql = "SELECT c.type, c.description FROM ComTable AS c LEFT JOIN tblGeneralWard AS gw ON c.syskey = gw.parentid WHERE c.type >= 50";
+//	}
 	
 	public ResponseData getAllGws(FilterRequest req, Connection conn) throws SQLException {
 		String sql = "SELECT v.patientid, v.RgsName, v.RefNo, v.RgsNo, c.description, l.syskey, l.n1, "
