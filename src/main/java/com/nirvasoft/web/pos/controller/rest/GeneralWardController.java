@@ -78,6 +78,15 @@ public class GeneralWardController extends IController {
 				.collect(Collectors.toList());
 	}
 	
+	
+	@PostMapping(value="/patient-adl")
+	public List<HashMap<String, Object>> getPateintADL(@RequestBody FilterRequest req, HttpServletRequest request) {
+		return generalWardService
+				.fetchPateintADL(req, getUser(request))
+				.stream()
+				.map(data -> data.toHashMap())
+				.collect(Collectors.toList());
+	}
 //	@PostMapping(value="/with-date")
 //	public List<HashMap<String, Object>> getGeneralWards(@RequestBody FilterRequest filteredReq, HttpServletRequest request) {
 //		return generalWardService
