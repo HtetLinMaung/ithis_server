@@ -22,7 +22,7 @@ import com.nirvasoft.web.pos.util.ConnectionUtil;
 public class GeneralWardService {
 	@Autowired
 	private GeneralWardDao generalWardDao;
-	
+
 	public ArrayList<GeneralWardData> fetchAllGeneralWardsInitial(FilterRequest filteredReq, UserData user) {
 		ArrayList<GeneralWardData> list = new ArrayList<>();
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
@@ -32,7 +32,7 @@ public class GeneralWardService {
 		}
 		return list;
 	}
-	
+
 	public ArrayList<GwData> fetchGwsByRgsNo(FilterRequest req, UserData user) {
 		ArrayList<GwData> list = new ArrayList<>();
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
@@ -42,7 +42,6 @@ public class GeneralWardService {
 		}
 		return list;
 	}
-	
 
 	public ArrayList<GoalData> fetchAllGoals(UserData user) {
 		ArrayList<GoalData> list = new ArrayList<>();
@@ -53,7 +52,7 @@ public class GeneralWardService {
 		}
 		return list;
 	}
-	
+
 	public ResponseData fetchAllGeneralWards(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			return generalWardDao.getAllGws(req, conn);
@@ -62,7 +61,7 @@ public class GeneralWardService {
 		}
 		return new ResponseData();
 	}
-	
+
 	public ArrayList<GeneralWardDetailData> fetchShiftsByParent(long parentId, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			return generalWardDao.getShiftsByParent(parentId, conn);
@@ -71,8 +70,8 @@ public class GeneralWardService {
 		}
 		return new ArrayList<GeneralWardDetailData>();
 	}
-	
-	public ArrayList<GwData> fetchPateintADL(FilterRequest req, UserData user) {
+
+	public ArrayList<GwData> fetchPatientADL(FilterRequest req, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			return generalWardDao.getPateintADL(req, conn);
 		} catch (Exception e) {
@@ -80,27 +79,28 @@ public class GeneralWardService {
 		}
 		return new ArrayList<GwData>();
 	}
-	
-//	public ArrayList<GeneralWardData> fetchGeneralWards(FilterRequest filteredReq, UserData user) {
-//		ArrayList<GeneralWardData> list = new ArrayList<>();
-//		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-//			list = generalWardDao.getGeneralWards(filteredReq, conn);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return list;
-//	}
-//	
-//	public GwData fetchGwByIntervention(GwData data, UserData user) {
-//		GwData gw = new GwData();
-//		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
-//			gw = generalWardDao.getGwByIntervention(data, conn);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//		return gw;
-//	}
-	
+
+	// public ArrayList<GeneralWardData> fetchGeneralWards(FilterRequest
+	// filteredReq, UserData user) {
+	// ArrayList<GeneralWardData> list = new ArrayList<>();
+	// try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+	// list = generalWardDao.getGeneralWards(filteredReq, conn);
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return list;
+	// }
+	//
+	// public GwData fetchGwByIntervention(GwData data, UserData user) {
+	// GwData gw = new GwData();
+	// try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+	// gw = generalWardDao.getGwByIntervention(data, conn);
+	// } catch (Exception e) {
+	// e.printStackTrace();
+	// }
+	// return gw;
+	// }
+
 	public long updateGeneralWard(long syskey, GeneralWardData data, UserData user) {
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			generalWardDao.updateGeneralWard(syskey, data, conn);
@@ -109,7 +109,7 @@ public class GeneralWardService {
 		}
 		return syskey;
 	}
-	
+
 	public int deleteGeneralWard(long syskey, long detailSyskey, UserData user) {
 		int status = 0;
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
@@ -119,9 +119,9 @@ public class GeneralWardService {
 		}
 		return status;
 	}
-	
-	public ArrayList<Long> saveGeneralWards(ArrayList<GwData> data, UserData user) {	
-		ArrayList<Long> list = new ArrayList<>(); 
+
+	public ArrayList<Long> saveGeneralWards(ArrayList<GwData> data, UserData user) {
+		ArrayList<Long> list = new ArrayList<>();
 		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
 			list = generalWardDao.saveGeneralWards(data, conn);
 		} catch (Exception e) {
