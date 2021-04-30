@@ -72,6 +72,15 @@ public class GeneralWardService {
 		return new ArrayList<GeneralWardDetailData>();
 	}
 	
+	public ArrayList<GwData> fetchPatientADL(FilterRequest req, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return generalWardDao.getPateintADL(req, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return new ArrayList<GwData>();
+	}
+	
 //	public ArrayList<GeneralWardData> fetchGeneralWards(FilterRequest filteredReq, UserData user) {
 //		ArrayList<GeneralWardData> list = new ArrayList<>();
 //		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {

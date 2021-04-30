@@ -160,9 +160,58 @@ public class GeneralWardDao extends QueryUtil {
 //		}
 //		return data;
 //	}
-//	public ArrayList<GwData> getPateintADL(FilterRequest req, Connection conn) throws SQLException {
-//		String sql = "SELECT c.type, c.description FROM ComTable AS c LEFT JOIN tblGeneralWard AS gw ON c.syskey = gw.parentid WHERE c.type >= 50";
-//	}
+	
+	public ArrayList<GwData> getPateintADL(FilterRequest req, Connection conn) 
+			throws SQLException {
+		String sql = "SELECT c.type, c.description, gw.t1, gw.n3, gw.n2, gw.t2, gw.syskey, "
+				+ "gw.parentid FROM ComTable AS c LEFT JOIN (SELECT * FROM tblGeneralWard WHERE "
+				+ "RgsNo = ? AND REPLACE(SUBSTRING(t1, 0, 11), '-', '') >= ?) AS gw "
+				+ "ON c.syskey = gw.parentid WHERE c.type >= 50";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		int i = 1;
+		stmt.setLong(i++, req.getRgsno());
+		stmt.setString(i++, req.getFrom());
+		ResultSet rs = stmt.executeQuery();
+		
+		ArrayList<GwData> list = new ArrayList<>();
+		while(rs.next()) {
+			GwData data = new GwData();
+			data.setSyskey(rs.getLong("syskey"));
+			data.setGoal(rs.getInt("type"));
+			data.setInterDesc(rs.getString("description"));
+			data.setInitDate(rs.getString("t1"));
+			data.setInterventionFrom(rs.getLong("parentid"), rs.getInt("n3"));
+			data.setOutcomeMet(rs.getBoolean("n2"));
+			data.setOutcomeMetAt(rs.getString("t2"));
+			
+			sql = "SELECT t1, t2, t3, t4, t5, t6, t7, n1, n2 FROM tblGeneralWardDetail "
+					+ "WHERE parentId = ? AND REPLACE(t7, '-', '') <= ?";
+			stmt = conn.prepareStatement(sql);
+			i = 1;
+			stmt.setLong(i++, data.getSyskey());
+			stmt.setString(i++, req.getTo());
+			ResultSet rs2 = stmt.executeQuery();
+			
+			ArrayList<GeneralWardDetailData> shifts = new ArrayList<>();
+			while (rs2.next()) {
+				GeneralWardDetailData detailData = new GeneralWardDetailData();
+				detailData.setDayAt(rs2.getString("t1"));
+				detailData.setDayId(rs2.getString("t2"));
+				detailData.setDayName(rs2.getString("t3"));
+				detailData.setNightAt(rs2.getString("t4"));
+				detailData.setNightId(rs2.getString("t5"));
+				detailData.setNightName(rs2.getString("t6"));
+				detailData.setDate(rs2.getString("t7"));
+				detailData.setNight(rs2.getBoolean("n2"));
+				detailData.setDay(rs2.getBoolean("n1"));
+				shifts.add(detailData);
+			}
+			data.setShifts(shifts);
+			list.add(data);
+		}
+		
+		return list;
+	}
 	
 	public ResponseData getAllGws(FilterRequest req, Connection conn) throws SQLException {
 		String sql = "SELECT v.patientid, v.RgsName, v.RefNo, v.RgsNo, c.description, l.syskey, l.n1, "
