@@ -64,7 +64,15 @@ public class PatientService {
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		}
-		
+		}	
+	}
+	
+	public String getUsernameById(String userId, UserData user) {
+		try (Connection conn = ConnectionUtil.getConnection(user.getOrgId());) {
+			return patientDao.fetchUsernameById(userId, conn);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "";
+		}	
 	}
 }
