@@ -65,4 +65,13 @@ public class PatientController extends IController {
 		}
 		return map;
 	}
+	
+	@GetMapping(value = "/username/{userId}")
+	public HashMap<String, Object> getUsernameById(@PathVariable("userId") String userId, 
+			HttpServletRequest request) {
+		String username = patientService.getUsernameById(userId, getUser(request));
+		HashMap<String, Object> map = new HashMap<>();
+		map.put("username", username);
+		return map;
+	}
 }

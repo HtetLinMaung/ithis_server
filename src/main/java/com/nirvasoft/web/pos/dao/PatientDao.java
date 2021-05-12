@@ -74,8 +74,8 @@ public class PatientDao extends QueryUtil {
 		}
 		if (adNos.size() == 0) {
 			HashMap<String, Object> map = new HashMap<>();
-			map.put("text", rs.getString("-"));
-			map.put("value", rs.getString("-"));
+			map.put("text", "-");
+			map.put("value", "-");
 			adNos.add(map);
 		}
 		
@@ -166,5 +166,21 @@ public class PatientDao extends QueryUtil {
 			}
 		
 		return null;
+	}
+	
+	public String fetchUsernameById(String userId, Connection conn) throws SQLException {
+		String username = "";
+		String sql = "select u5.t1 userid ,u12.t2 username from uvm005 u5 inner join jun002 j2 on u5.syskey=j2.n1\n"
+				+ "inner join uvm009 u9 on  j2.n2=u9.syskey\n"
+				+ "inner join uvm012 u12 on u5.n4=u12.syskey\n"
+				+ "where u5.t1 = ?";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		stmt.setString(1, userId);
+		ResultSet rs = stmt.executeQuery();
+		while (rs.next()) {
+			username = rs.getString("username");
+		}
+		
+		return username;
 	}
 }
